@@ -6,6 +6,13 @@ import { scanCodebase } from './codegraph';
 import { simpleGit } from 'simple-git';
 import { updateContext } from './context';
 
+export interface CommitRecordResult {
+  status: 'recorded' | 'skipped' | 'unavailable';
+  message: string;
+  shortHash?: string;
+  recordPath?: string;
+}
+
 export const generateRecord = (targetPath: string, vibeforgeDir: string): string => {
   const recordsDir = path.join(vibeforgeDir, 'records');
   const recordId = generateShortHash();
@@ -39,18 +46,25 @@ This record contains a knowledge graph of the codebase at the specified path.
   return recordId;
 };
 
-export const recordLatestCommit = async (vibeforgeDir: string) => {
+export const recordLatestCommit = async (
+  vibeforgeDir: string,
+  options: { silent?: boolean } = {}
+): Promise<CommitRecordResult> => {
   try {
     const git = simpleGit();
     const isRepo = await git.checkIsRepo();
     if (!isRepo) {
-      console.error('❌ Error: Current directory is not a git repository.');
-      return;
+      return {
+        status: 'unavailable',
+        message: 'Current directory is not a git repository.',
+      };
     }
     const log = await git.log({ maxCount: 1 });
     if (!log || !log.latest) {
-      console.log('ℹ️ No commits found in the repository.');
-      return;
+      return {
+        status: 'unavailable',
+        message: 'No commits found in the repository.',
+      };
     }
     const latest = log.latest;
     const recordsDir = path.join(vibeforgeDir, 'records');
@@ -62,8 +76,11 @@ export const recordLatestCommit = async (vibeforgeDir: string) => {
     // In new modular VibeForge, some records are folders and some are files. We check both.
     const isAlreadyRecord = existingRecords.some((item) => item.includes(shortHash));
     if (isAlreadyRecord) {
-      console.log(`ℹ️ Commit ${shortHash} is already recorded.`);
-      return;
+      return {
+        status: 'skipped',
+        message: `Commit ${shortHash} is already recorded.`,
+        shortHash,
+      };
     }
 
     // Get the diff stat and diff content
@@ -112,11 +129,23 @@ ${diffText}
 `;
 
     fs.writeFileSync(recordPath, recordContent);
-    console.log(`✅ Recorded commit: ${shortHash} -> ${recordFileName}`);
 
     // Update context
-    updateContext(vibeforgeDir);
+    updateContext(vibeforgeDir, { silent: true });
+
+    const result: CommitRecordResult = {
+      status: 'recorded',
+      message: `Recorded commit ${shortHash}.`,
+      shortHash,
+      recordPath,
+    };
+
+    if (!options.silent) {
+      console.log(`✅ Recorded commit: ${shortHash} -> ${recordFileName}`);
+    }
+
+    return result;
   } catch (error: any) {
-    console.error('❌ Failed to record commit:', error.message);
+    throw new Error(`Failed to record commit: ${error.message}`);
   }
 };

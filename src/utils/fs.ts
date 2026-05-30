@@ -1,6 +1,41 @@
 import path from 'path';
 import fs from 'fs';
 
+export interface VibeForgeConfig {
+  projectName?: string;
+  description?: string;
+  importantDocs?: string[];
+  ignore?: string[];
+}
+
+const DEFAULT_IGNORE = [
+  'node_modules',
+  '.git',
+  '.vibeforge',
+  'dist',
+  'build',
+  'coverage',
+  '.DS_Store',
+  '*.log',
+];
+
+export const loadConfig = (cwd: string = process.cwd()): VibeForgeConfig => {
+  const configPath = path.join(cwd, 'vibeforge.json');
+  if (!fs.existsSync(configPath)) {
+    return { ignore: DEFAULT_IGNORE };
+  }
+  try {
+    const content = fs.readFileSync(configPath, 'utf-8');
+    const parsed = JSON.parse(content) as VibeForgeConfig;
+    return {
+      ...parsed,
+      ignore: [...(parsed.ignore || []), ...DEFAULT_IGNORE],
+    };
+  } catch {
+    return { ignore: DEFAULT_IGNORE };
+  }
+};
+
 export const ensureWorkspace = (): string => {
   const vibeforgeDir = path.join(process.cwd(), '.vibeforge');
   if (!fs.existsSync(vibeforgeDir)) {

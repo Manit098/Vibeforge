@@ -6,7 +6,16 @@ import { updateContext } from '../services/context';
 
 export const contextCommand = (options: any) => {
   const vibeforgeDir = ensureWorkspace();
-  updateContext(vibeforgeDir);
+  const result = updateContext(vibeforgeDir, { silent: true });
+
+  console.log('\n📚 Context rebuilt\n');
+  console.log(`  File: ${result.contextPath}`);
+  console.log(
+    `  Sources: ${result.stats.docs} docs | ${result.stats.memory} memory | ${result.stats.records} records | ${result.stats.plans} plans`
+  );
+  console.log(
+    `  Size: ${result.stats.characters} characters | ~${result.stats.estimatedTokens} tokens`
+  );
 
   if (options.stats) {
     const contextPath = path.join(vibeforgeDir, 'context.md');
@@ -16,6 +25,8 @@ export const contextCommand = (options: any) => {
     console.log('\n📊 Context Stats');
     console.log(`Characters: ${contextContent.length}`);
     console.log(`Estimated Tokens: ~${tokens}`);
-    console.log('');
+    console.log(`Path: ${contextPath}`);
   }
+
+  console.log('');
 };

@@ -32,10 +32,11 @@ import { checklistCommand, checklistShowCommand, checklistDoneCommand } from './
 import { testScanCommand } from './commands/test-scan';
 import { promptWizardCommand } from './commands/prompt-wizard';
 import { branchContextCommand } from './commands/branch-context';
+import { askCommand, codexCommand } from './commands/ask';
+import { handoffCommand } from './commands/handoff';
 import { ensureWorkspace } from './utils/fs';
 import { generateAgentMd } from './services/agent';
 import { updateContext } from './services/context';
-import { generateHandoff } from './services/handoff';
 
 const program = new Command();
 
@@ -64,6 +65,15 @@ program
   .description('Record an AI prompt 📝')
   .option('--reason <reason>', 'Reasoning/Goal behind prompt')
   .action(promptCommand);
+
+program
+  .command('ask [prompt]')
+  .description('Ask AI using VibeForge project context 💬')
+  .action(askCommand);
+program
+  .command('codex [prompt]')
+  .description('Hackathon-friendly alias for ask 💬')
+  .action(codexCommand);
 
 const hookCmd = program.command('hook');
 hookCmd
@@ -104,13 +114,7 @@ makeCmd
     generateAgentMd(vibeforgeDir);
   });
 
-program
-  .command('handoff')
-  .description('Generate AI handoff 🎯')
-  .action(async () => {
-    const vibeforgeDir = ensureWorkspace();
-    await generateHandoff(vibeforgeDir);
-  });
+program.command('handoff').description('Generate AI handoff 🎯').action(handoffCommand);
 
 program
   .command('dashboard')
@@ -118,9 +122,15 @@ program
   .option('-p, --port <number>', 'Port to run the dashboard on', '3000')
   .action(dashboardCommand);
 
-program.command('diff').description('Show changes since last context update 📊').action(diffCommand);
+program
+  .command('diff')
+  .description('Show changes since last context update 📊')
+  .action(diffCommand);
 
-program.command('search <query>').description('Search across workspace content 🔍').action(searchCommand);
+program
+  .command('search <query>')
+  .description('Search across workspace content 🔍')
+  .action(searchCommand);
 
 program
   .command('export')
@@ -137,7 +147,10 @@ program
   .option('--all', 'Remove records, memory, and plans')
   .action(cleanCommand);
 
-program.command('analyze').description('Analyze codebase structure and stats 📈').action(analyzeCommand);
+program
+  .command('analyze')
+  .description('Analyze codebase structure and stats 📈')
+  .action(analyzeCommand);
 
 program
   .command('decision <text>')
@@ -157,19 +170,37 @@ program.command('tags').description('List all project tags 🏷️').action(tags
 
 program.command('health').description('Project health score 🩺').action(healthCommand);
 
-program.command('compare <tag1> <tag2>').description('Compare two tagged snapshots 📊').action(compareCommand);
+program
+  .command('compare <tag1> <tag2>')
+  .description('Compare two tagged snapshots 📊')
+  .action(compareCommand);
 
-program.command('sync').description('Full sync: context + handoff + commit + agent 🔄').action(syncCommand);
+program
+  .command('sync')
+  .description('Full sync: context + handoff + commit + agent 🔄')
+  .action(syncCommand);
 
-program.command('alias <name> <command>').description('Create a command shortcut 📎').action(aliasCommand);
+program
+  .command('alias <name> <command>')
+  .description('Create a command shortcut 📎')
+  .action(aliasCommand);
 program.command('aliases').description('List all command aliases 📎').action(aliasListCommand);
 program.command('run <name>').description('Run a saved alias 📎').action(aliasRunCommand);
 
-program.command('blueprint').description('Generate architecture blueprint 🧬').action(blueprintCommand);
+program
+  .command('blueprint')
+  .description('Generate architecture blueprint 🧬')
+  .action(blueprintCommand);
 
-program.command('inbox').description('Show pending actions and suggestions 📬').action(inboxCommand);
+program
+  .command('inbox')
+  .description('Show pending actions and suggestions 📬')
+  .action(inboxCommand);
 
-program.command('lock').description('Lock workspace against destructive operations 🔐').action(lockCommand);
+program
+  .command('lock')
+  .description('Lock workspace against destructive operations 🔐')
+  .action(lockCommand);
 program.command('unlock').description('Unlock workspace 🔓').action(unlockCommand);
 
 program
@@ -178,18 +209,39 @@ program
   .option('--weekly', 'Show weekly stats instead of daily')
   .action(statsCommand);
 
-program.command('scaffold <type>').description('Generate template files 🏗️').action(scaffoldCommand);
+program
+  .command('scaffold <type>')
+  .description('Generate template files 🏗️')
+  .action(scaffoldCommand);
 
 program.command('deps').description('Analyze project dependencies 🔗').action(depsCommand);
 
-program.command('rollback <tag>').description('Restore context from a saved tag ⏪').action(rollbackCommand);
+program
+  .command('rollback <tag>')
+  .description('Restore context from a saved tag ⏪')
+  .action(rollbackCommand);
 
-program.command('checklist <text>').description('Add a TODO item to project checklist 📋').action(checklistCommand);
-program.command('checklist-show').description('Show project checklist 📋').action(checklistShowCommand);
-program.command('checklist-done <index>').description('Mark checklist item as done ✅').action(checklistDoneCommand);
+program
+  .command('checklist <text>')
+  .description('Add a TODO item to project checklist 📋')
+  .action(checklistCommand);
+program
+  .command('checklist-show')
+  .description('Show project checklist 📋')
+  .action(checklistShowCommand);
+program
+  .command('checklist-done <index>')
+  .description('Mark checklist item as done ✅')
+  .action(checklistDoneCommand);
 
-program.command('test-scan').description('Scan codebase test coverage and health 🧪').action(testScanCommand);
-program.command('prompt-wizard').description('Interactive wizard to build AI prompts 💬').action(promptWizardCommand);
+program
+  .command('test-scan')
+  .description('Scan codebase test coverage and health 🧪')
+  .action(testScanCommand);
+program
+  .command('prompt-wizard')
+  .description('Interactive wizard to build AI prompts 💬')
+  .action(promptWizardCommand);
 program
   .command('branch-context')
   .description('Manage branch-specific context snapshots 🔀')

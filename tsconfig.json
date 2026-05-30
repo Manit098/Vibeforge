@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "es2020",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "lib": ["esnext"],
     "sourceMap": true,
     "declaration": true,

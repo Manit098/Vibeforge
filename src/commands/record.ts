@@ -7,7 +7,18 @@ export const recordCommand = async (options: any) => {
   const vibeforgeDir = ensureWorkspace();
 
   if (options.commit) {
-    await recordLatestCommit(vibeforgeDir);
+    try {
+      const result = await recordLatestCommit(vibeforgeDir);
+      if (result.status === 'recorded') {
+        console.log(`✅ ${result.message}`);
+      } else {
+        console.log(`ℹ️ ${result.message}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`❌ ${message}`);
+      process.exit(1);
+    }
     return;
   }
 
