@@ -1,7 +1,11 @@
 import { ensureWorkspace } from '../utils/fs';
 import { startDashboardServer } from '../dashboard';
 
-export const dashboardCommand = (options: any) => {
+interface DashboardOptions {
+  port?: string;
+}
+
+export const dashboardCommand = (options: DashboardOptions) => {
   const vibeforgeDir = ensureWorkspace();
   const port = parseInt(options.port || '3000', 10);
 

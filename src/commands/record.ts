@@ -2,11 +2,79 @@ import path from 'path';
 import chokidar from 'chokidar';
 import { ensureWorkspace } from '../utils/fs';
 import { generateRecord, recordLatestCommit } from '../services/records';
+import {
+  ensureMemoryWorkspace,
+  generateMemoryId,
+  isMemoryType,
+  normalizeFilePath,
+  readMemories,
+  writeMemories,
+  MemoryItem,
+} from '../services/memory';
 
-export const recordCommand = async (options: any) => {
-  const vibeforgeDir = ensureWorkspace();
+interface LegacyRecordOptions {
+  commit?: boolean;
+  generate?: string;
+  watch?: string;
+  update?: boolean;
+}
 
-  if (options.commit) {
+interface MemoryRecordOptions extends LegacyRecordOptions {
+  tag?: string[];
+  file?: string[];
+}
+
+export const recordCommand = async (
+  typeOrOptions: string | LegacyRecordOptions,
+  content?: string,
+  options?: MemoryRecordOptions
+) => {
+  const isNewMemoryCommand = typeof typeOrOptions === 'string';
+  const commandOptions: MemoryRecordOptions = isNewMemoryCommand
+    ? options || {}
+    : typeOrOptions || {};
+  const vibeforgeDir = isNewMemoryCommand ? ensureMemoryWorkspace() : ensureWorkspace();
+
+  if (isNewMemoryCommand) {
+    const type = typeOrOptions;
+    if (!isMemoryType(type)) {
+      console.error(
+        'Error: unsupported memory type. Use one of: decision, rule, feature, doc, prompt, note, challenge'
+      );
+      process.exit(1);
+    }
+
+    if (!content || !content.trim()) {
+      console.error(`Error: missing memory content. Example: vibeforge record ${type} "Your note"`);
+      process.exit(1);
+    }
+
+    const memories = readMemories(vibeforgeDir);
+    const now = new Date().toISOString();
+    const memory: MemoryItem = {
+      id: generateMemoryId(memories),
+      type,
+      content: content.trim(),
+      tags: (commandOptions.tag || []).map((tag) => tag.trim()).filter(Boolean),
+      files: (commandOptions.file || [])
+        .map((file) => normalizeFilePath(file.trim()))
+        .filter(Boolean),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    writeMemories(vibeforgeDir, [...memories, memory]);
+    console.log(`Recorded ${memory.type} memory ${memory.id}`);
+    if (memory.tags.length > 0) {
+      console.log(`Tags: ${memory.tags.join(', ')}`);
+    }
+    if (memory.files.length > 0) {
+      console.log(`Files: ${memory.files.join(', ')}`);
+    }
+    return;
+  }
+
+  if (commandOptions.commit) {
     try {
       const result = await recordLatestCommit(vibeforgeDir);
       if (result.status === 'recorded') {
@@ -22,19 +90,21 @@ export const recordCommand = async (options: any) => {
     return;
   }
 
-  if (options.generate) {
-    const targetPath = options.generate === '.' ? process.cwd() : path.resolve(options.generate);
+  if (commandOptions.generate) {
+    const targetPath =
+      commandOptions.generate === '.' ? process.cwd() : path.resolve(commandOptions.generate);
     generateRecord(targetPath, vibeforgeDir);
     return;
   }
 
-  if (options.update) {
+  if (commandOptions.update) {
     generateRecord(process.cwd(), vibeforgeDir);
     return;
   }
 
-  if (options.watch) {
-    const targetPath = options.watch === '.' ? process.cwd() : path.resolve(options.watch);
+  if (commandOptions.watch) {
+    const targetPath =
+      commandOptions.watch === '.' ? process.cwd() : path.resolve(commandOptions.watch);
     console.log(`👀 Watching for changes in: ${targetPath}`);
 
     const watcher = chokidar.watch(targetPath, {

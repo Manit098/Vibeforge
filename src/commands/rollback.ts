@@ -1,7 +1,6 @@
 import path from 'path';
 import fs from 'fs';
 import { ensureWorkspace } from '../utils/fs';
-import { updateContext } from '../services/context';
 
 export const rollbackCommand = (tagName: string) => {
   const vibeforgeDir = ensureWorkspace();
@@ -24,7 +23,9 @@ export const rollbackCommand = (tagName: string) => {
 
   const tagDir = path.join(tagsDir, match.name);
   const metaPath = path.join(tagDir, 'tag.json');
-  const meta = fs.existsSync(metaPath) ? JSON.parse(fs.readFileSync(metaPath, 'utf-8')) : { name: tagName };
+  const meta = fs.existsSync(metaPath)
+    ? JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
+    : { name: tagName };
 
   console.log(`\n⏪ Rolling back to tag: "${meta.name}"\n`);
 

@@ -86,7 +86,10 @@ export const parseEnvFile = (content: string): Record<string, string> => {
     }
 
     const key = line.slice(0, separatorIndex).trim();
-    const value = line.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+    const value = line
+      .slice(separatorIndex + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, '');
 
     if (key) {
       acc[key] = value;
@@ -100,7 +103,7 @@ export const loadAIConfig = (cwd: string = process.cwd()): AIConfig => {
   const envPath = path.join(cwd, '.env');
   const fileEnv = fs.existsSync(envPath) ? parseEnvFile(fs.readFileSync(envPath, 'utf-8')) : {};
   const env = { ...fileEnv, ...process.env };
-  
+
   const config = loadConfig(cwd);
   const aiConfig = config as unknown as { ai?: VibeForgeAIConfig } & Record<string, unknown>;
   const aiFromJson = aiConfig.ai || {};
@@ -108,11 +111,16 @@ export const loadAIConfig = (cwd: string = process.cwd()): AIConfig => {
   return {
     provider: normalizeProviderName(aiFromJson.aiProvider || env.AI_PROVIDER) || 'openrouter',
     openRouterApiKey: aiFromJson.openRouterApiKey || env.OPENROUTER_API_KEY,
-    openRouterModel: aiFromJson.openRouterModel || env.OPENROUTER_MODEL || 'openai/gpt-oss-20b:free',
-    openRouterFallbackModel: aiFromJson.openRouterFallbackModel || env.OPENROUTER_FALLBACK_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
+    openRouterModel:
+      aiFromJson.openRouterModel || env.OPENROUTER_MODEL || 'openai/gpt-oss-20b:free',
+    openRouterFallbackModel:
+      aiFromJson.openRouterFallbackModel ||
+      env.OPENROUTER_FALLBACK_MODEL ||
+      'meta-llama/llama-3.3-70b-instruct:free',
     openAiApiKey: aiFromJson.openAiApiKey || env.OPENAI_API_KEY,
     openAiModel: aiFromJson.openAiModel || env.OPENAI_MODEL || 'gpt-4o-mini',
-    localModelUrl: aiFromJson.localModelUrl || env.LOCAL_MODEL_URL || 'http://127.0.0.1:11434/api/chat',
+    localModelUrl:
+      aiFromJson.localModelUrl || env.LOCAL_MODEL_URL || 'http://127.0.0.1:11434/api/chat',
     localModelName: aiFromJson.localModelName || env.LOCAL_MODEL_NAME,
     openRouterAppUrl: aiFromJson.openRouterHttpReferer || env.OPENROUTER_HTTP_REFERER,
     openRouterAppName: aiFromJson.openRouterXTitle || env.OPENROUTER_X_TITLE || 'VibeForge',
@@ -162,7 +170,9 @@ const ensureUserConfiguredProvider = (config: AIConfig): AIProviderName => {
   }
 
   if (config.provider === 'local' && (!config.localModelUrl || !config.localModelName)) {
-    throw new Error('AI_PROVIDER is set to local but LOCAL_MODEL_URL or LOCAL_MODEL_NAME is missing.');
+    throw new Error(
+      'AI_PROVIDER is set to local but LOCAL_MODEL_URL or LOCAL_MODEL_NAME is missing.'
+    );
   }
 
   return config.provider;
@@ -182,7 +192,9 @@ const readResponseBody = async (response: Response): Promise<string> => {
   }
 };
 
-const extractTextFromContent = (content?: string | Array<{ type?: string; text?: string }>): string => {
+const extractTextFromContent = (
+  content?: string | Array<{ type?: string; text?: string }>
+): string => {
   if (typeof content === 'string') {
     return content.trim();
   }
@@ -264,10 +276,14 @@ const requestOpenRouter = async (request: AIRequest, config: AIConfig): Promise<
 
   for (const model of models) {
     try {
-      const data = await postChatCompletion('https://openrouter.ai/api/v1/chat/completions', headers, {
-        model,
-        messages,
-      });
+      const data = await postChatCompletion(
+        'https://openrouter.ai/api/v1/chat/completions',
+        headers,
+        {
+          model,
+          messages,
+        }
+      );
 
       const text = extractAssistantText(data);
       if (!text) {
@@ -376,5 +392,7 @@ export const requestAICompletion = async (
     }
   }
 
-  throw new Error(`All AI providers failed.\n${errors.map((message) => `- ${message}`).join('\n')}`);
+  throw new Error(
+    `All AI providers failed.\n${errors.map((message) => `- ${message}`).join('\n')}`
+  );
 };

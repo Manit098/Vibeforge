@@ -160,11 +160,12 @@ export const scaffoldCommand = (type: string) => {
     return;
   }
 
-  const targetDir = type === 'decision' || type === 'memory' || type === 'retrospective'
-    ? path.join(vibeforgeDir, 'memory')
-    : type === 'plan'
-    ? path.join(vibeforgeDir, 'plans')
-    : path.join(vibeforgeDir, 'docs');
+  const targetDir =
+    type === 'decision' || type === 'memory' || type === 'retrospective'
+      ? path.join(vibeforgeDir, 'memory')
+      : type === 'plan'
+        ? path.join(vibeforgeDir, 'plans')
+        : path.join(vibeforgeDir, 'docs');
 
   if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 

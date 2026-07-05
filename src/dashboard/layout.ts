@@ -1,7 +1,12 @@
 import { getStyles } from './styles';
 
 // Wraps page-specific body content in the full HTML shell with sidebar navigation
-export const renderLayout = (pageId: string, pageTitle: string, bodyContent: string, pageScript: string): string => {
+export const renderLayout = (
+  pageId: string,
+  pageTitle: string,
+  bodyContent: string,
+  pageScript: string
+): string => {
   const navItems = [
     { id: 'overview', icon: '📊', label: 'Overview', href: '/' },
     { id: 'timeline', icon: '🕐', label: 'Timeline', href: '/timeline' },

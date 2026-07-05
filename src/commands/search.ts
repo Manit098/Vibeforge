@@ -2,7 +2,11 @@ import path from 'path';
 import fs from 'fs';
 import { ensureWorkspace } from '../utils/fs';
 
-const searchInDir = (dir: string, query: string, results: { file: string; line: number; text: string }[]) => {
+const searchInDir = (
+  dir: string,
+  query: string,
+  results: { file: string; line: number; text: string }[]
+) => {
   if (!fs.existsSync(dir)) return;
 
   const items = fs.readdirSync(dir, { withFileTypes: true });

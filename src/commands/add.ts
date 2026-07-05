@@ -3,7 +3,14 @@ import fs from 'fs';
 import { ensureWorkspace } from '../utils/fs';
 import { generateId, generateTimestamp } from '../utils/crypto';
 
-export const addCommand = (file: string | undefined, options: any) => {
+interface AddOptions {
+  memory?: string;
+  docs?: string;
+  plans?: string;
+  prompt?: string;
+}
+
+export const addCommand = (file: string | undefined, options: AddOptions) => {
   const vibeforgeDir = ensureWorkspace();
 
   if (options.memory) {

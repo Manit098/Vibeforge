@@ -34,7 +34,9 @@ export const checklistShowCommand = () => {
   const clPath = path.join(vibeforgeDir, 'checklist.md');
 
   if (!fs.existsSync(clPath)) {
-    console.log('\n📋 No checklist found. Create one with: vibeforge checklist "Task description"\n');
+    console.log(
+      '\n📋 No checklist found. Create one with: vibeforge checklist "Task description"\n'
+    );
     return;
   }
 

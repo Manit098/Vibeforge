@@ -19,7 +19,32 @@ import { buildCustomPrompt } from '../commands/prompt-wizard';
 import { updateContext } from '../services/context';
 import { generateHandoff } from '../services/handoff';
 import { scanCodebase } from '../services/codegraph';
-import { estimateTokens } from '../utils/crypto';
+import { CodegraphNode } from '../types';
+
+interface TimelineItem {
+  filename: string;
+  category: string;
+  type: string;
+  createdAt: string;
+  sizeBytes: number;
+  content: string;
+}
+
+interface DocumentSummary {
+  filename: string;
+  category: string;
+  createdAt: string;
+  sizeBytes: number;
+}
+
+interface RecentActivity {
+  filename: string;
+  type: string;
+  createdAt: string;
+}
+
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) => {
   const app = express();
@@ -71,15 +96,15 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
           plans: readFiles('plans').length,
         },
       });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
   // ─── API: Timeline ───
   app.get('/api/timeline', (_req, res) => {
     try {
-      const items: any[] = [];
+      const items: TimelineItem[] = [];
       const addItems = (subdir: string, category: string, typeDetect: (f: string) => string) => {
         const dir = path.join(vibeforgeDir, subdir);
         if (!fs.existsSync(dir)) return;
@@ -111,8 +136,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       addItems('plans', 'Plan', () => 'plan');
       items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       res.json(items);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -130,8 +155,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     try {
       updateContext(vibeforgeDir, { silent: true });
       res.json({ success: true });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -151,8 +176,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       );
       updateContext(vibeforgeDir, { silent: true });
       res.json({ success: true, filename: fn });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -161,7 +186,7 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     try {
       const cat = (req.query.category as string) || 'all';
       const categories = cat === 'all' ? ['docs', 'memory', 'records', 'plans'] : [cat];
-      let all: any[] = [];
+      let all: DocumentSummary[] = [];
       categories.forEach((c) => {
         const dir = path.join(vibeforgeDir, c);
         if (!fs.existsSync(dir)) return;
@@ -179,8 +204,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       });
       all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       res.json(all);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -189,8 +214,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       const fp = path.join(vibeforgeDir, req.params.category, req.params.filename);
       if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Not found' });
       res.json({ content: fs.readFileSync(fp, 'utf-8') });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -211,8 +236,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       const fp = path.join(vibeforgeDir, 'handoff.md');
       const content = fs.existsSync(fp) ? fs.readFileSync(fp, 'utf-8') : '';
       res.json({ success: true, content });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -229,7 +254,7 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       const stats: LangStat[] = [];
       const largest: { name: string; size: number }[] = [];
 
-      const collect = (node: any) => {
+      const collect = (node: CodegraphNode) => {
         if (node.type === 'file') {
           const ext = node.extension || '(none)';
           let entry = stats.find((s) => s.ext === ext);
@@ -245,12 +270,12 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       };
       collect(tree);
 
-      const countNodes = (node: any): { files: number; dirs: number } => {
+      const countNodes = (node: CodegraphNode): { files: number; dirs: number } => {
         if (node.type === 'file') return { files: 1, dirs: 0 };
         let f = 0,
           d = 1;
         if (node.children)
-          node.children.forEach((c: any) => {
+          node.children.forEach((c) => {
             const s = countNodes(c);
             f += s.files;
             d += s.dirs;
@@ -300,8 +325,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
         dependencies,
         workspaceGrowth,
       });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -310,8 +335,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     try {
       const tree = scanCodebase(process.cwd());
       res.json(tree);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -450,8 +475,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       if (testScore < 8) recs.push('Add unit tests: run "vibeforge test-scan" to see candidates');
 
       res.json({ totalScore, grade, dimensions, recommendations: recs });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -460,8 +485,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     try {
       const resData = runTestScan(process.cwd());
       res.json(resData);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -471,8 +496,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       const { objective, files, rules } = req.body;
       const prompt = buildCustomPrompt(objective || '', files || [], rules || []);
       res.json({ prompt });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -496,8 +521,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
           tasks.push({ text: doneMatch[1].trim(), done: true, date: doneMatch[2] || '' });
       });
       res.json({ tasks });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -514,8 +539,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       fs.writeFileSync(clPath, content);
       updateContext(vibeforgeDir, { silent: true });
       res.json({ success: true });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -540,8 +565,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       fs.writeFileSync(clPath, lines.join('\n'));
       updateContext(vibeforgeDir, { silent: true });
       res.json({ success: true });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -553,8 +578,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       const lines = content.split('\n').filter((l) => !l.match(/^- \[x\]/));
       fs.writeFileSync(clPath, lines.join('\n'));
       res.json({ success: true });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 
@@ -626,7 +651,7 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
       calcSize(vibeforgeDir);
 
       // Recent activity
-      const recentActivity: any[] = [];
+      const recentActivity: RecentActivity[] = [];
       ['records', 'memory', 'plans'].forEach((sub) => {
         const dir = path.join(vibeforgeDir, sub);
         if (!fs.existsSync(dir)) return;
@@ -659,8 +684,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
         workspaceSize: wsSize,
         recentActivity,
       });
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
+    } catch (e) {
+      res.status(500).json({ error: errorMessage(e) });
     }
   });
 

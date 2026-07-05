@@ -46,7 +46,8 @@ const splitMemories = (memories: WorkspaceArtifact[]) => {
 
   return {
     decisions,
-    recentChanges: decisions.length > 0 ? memories.filter((memory) => !decisions.includes(memory)) : memories,
+    recentChanges:
+      decisions.length > 0 ? memories.filter((memory) => !decisions.includes(memory)) : memories,
   };
 };
 

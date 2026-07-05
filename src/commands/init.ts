@@ -3,9 +3,22 @@ import fs from 'fs';
 import { generateTimestamp } from '../utils/crypto';
 import { generateAgentMd } from '../services/agent';
 import { updateContext } from '../services/context';
-import { loadConfig } from '../utils/fs';
+import {
+  createMemoryConfig,
+  detectGitBranch,
+  detectGitRepo,
+  ensureMemoryWorkspace,
+  getConfigPath,
+  readJsonSafe,
+  writeJsonSafe,
+  MemoryConfig,
+} from '../services/memory';
 
 const COMMON_DOCS = ['PRD.md', 'RULES.txt', 'TECH_DOC.md'];
+
+interface InitOptions {
+  include?: boolean;
+}
 
 const ensureDir = (dir: string): boolean => {
   if (fs.existsSync(dir)) {
@@ -25,7 +38,7 @@ const ensureFile = (filePath: string, contents: string): boolean => {
   return true;
 };
 
-export const initCommand = (options: any) => {
+export const initCommand = (options: InitOptions) => {
   const vibeforgeDir = path.join(process.cwd(), '.vibeforge');
   const configPath = path.join(process.cwd(), 'vibeforge.json');
   const dirs = [
@@ -36,6 +49,24 @@ export const initCommand = (options: any) => {
   ];
 
   const createdRoot = ensureDir(vibeforgeDir);
+  ensureMemoryWorkspace();
+
+  const memoryConfigPath = getConfigPath(vibeforgeDir);
+  const existingMemoryConfig = readJsonSafe<MemoryConfig>(
+    memoryConfigPath,
+    createMemoryConfig(process.cwd())
+  );
+  writeJsonSafe(memoryConfigPath, {
+    ...existingMemoryConfig,
+    projectName: existingMemoryConfig.projectName || path.basename(process.cwd()),
+    rootPath: existingMemoryConfig.rootPath || process.cwd(),
+    createdAt: existingMemoryConfig.createdAt || new Date().toISOString(),
+    git: {
+      detected: detectGitRepo(),
+      ...(detectGitBranch() ? { branch: detectGitBranch() } : {}),
+    },
+  });
+
   const createdDirs = dirs.filter((dir) => ensureDir(dir));
   const contextPath = path.join(vibeforgeDir, 'context.md');
   const promptPath = path.join(vibeforgeDir, 'prompt.txt');
@@ -104,6 +135,7 @@ export const initCommand = (options: any) => {
     `\n${createdRoot ? '🎉 VibeForge workspace initialized!' : '🛠️ VibeForge workspace repaired and refreshed!'}`
   );
   console.log(`   Workspace: ${vibeforgeDir}`);
+  console.log(`   Git repository: ${detectGitRepo() ? 'yes' : 'no'}`);
   console.log(`   New folders: ${createdDirs.length} | New files: ${createdFiles.length}`);
   console.log(
     `   Context tokens: ~${contextResult.stats.estimatedTokens} | Docs: ${contextResult.stats.docs} | Memory: ${contextResult.stats.memory} | Records: ${contextResult.stats.records}`

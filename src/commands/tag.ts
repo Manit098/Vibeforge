@@ -31,9 +31,15 @@ export const tagCommand = (name: string) => {
     workspace: process.cwd(),
     contextSize: fs.existsSync(contextSrc) ? fs.statSync(contextSrc).size : 0,
     handoffSize: fs.existsSync(handoffSrc) ? fs.statSync(handoffSrc).size : 0,
-    docsCount: fs.existsSync(path.join(vibeforgeDir, 'docs')) ? fs.readdirSync(path.join(vibeforgeDir, 'docs')).length : 0,
-    memoryCount: fs.existsSync(path.join(vibeforgeDir, 'memory')) ? fs.readdirSync(path.join(vibeforgeDir, 'memory')).length : 0,
-    recordsCount: fs.existsSync(path.join(vibeforgeDir, 'records')) ? fs.readdirSync(path.join(vibeforgeDir, 'records')).length : 0,
+    docsCount: fs.existsSync(path.join(vibeforgeDir, 'docs'))
+      ? fs.readdirSync(path.join(vibeforgeDir, 'docs')).length
+      : 0,
+    memoryCount: fs.existsSync(path.join(vibeforgeDir, 'memory'))
+      ? fs.readdirSync(path.join(vibeforgeDir, 'memory')).length
+      : 0,
+    recordsCount: fs.existsSync(path.join(vibeforgeDir, 'records'))
+      ? fs.readdirSync(path.join(vibeforgeDir, 'records')).length
+      : 0,
   };
   fs.writeFileSync(path.join(tagDir, 'tag.json'), JSON.stringify(meta, null, 2));
 
@@ -41,7 +47,9 @@ export const tagCommand = (name: string) => {
   console.log(`  📂 Location:  tags/${path.basename(tagDir)}`);
   console.log(`  ⏰ Timestamp: ${ts}`);
   console.log(`  📚 Context:   ${(meta.contextSize / 1024).toFixed(1)} KB snapshotted`);
-  console.log(`  🎯 Handoff:   ${meta.handoffSize > 0 ? (meta.handoffSize / 1024).toFixed(1) + ' KB snapshotted' : 'Not available'}`);
+  console.log(
+    `  🎯 Handoff:   ${meta.handoffSize > 0 ? (meta.handoffSize / 1024).toFixed(1) + ' KB snapshotted' : 'Not available'}`
+  );
   console.log('');
 };
 
@@ -64,8 +72,12 @@ export const tagsListCommand = () => {
       try {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         console.log(`  🏷️  ${meta.name}`);
-        console.log(`     Created: ${meta.timestamp} | Context: ${(meta.contextSize / 1024).toFixed(1)} KB`);
-        console.log(`     Docs: ${meta.docsCount} | Memory: ${meta.memoryCount} | Records: ${meta.recordsCount}`);
+        console.log(
+          `     Created: ${meta.timestamp} | Context: ${(meta.contextSize / 1024).toFixed(1)} KB`
+        );
+        console.log(
+          `     Docs: ${meta.docsCount} | Memory: ${meta.memoryCount} | Records: ${meta.recordsCount}`
+        );
         console.log('');
       } catch {}
     }

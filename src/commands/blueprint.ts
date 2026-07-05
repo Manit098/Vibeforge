@@ -1,28 +1,39 @@
 import path from 'path';
 import fs from 'fs';
-import { ensureWorkspace } from '../utils/fs';
 import { scanCodebase } from '../services/codegraph';
+import { CodegraphNode } from '../types';
 
-const treeToString = (node: any, prefix: string = '', isLast: boolean = true, depth: number = 0): string => {
+const treeToString = (
+  node: CodegraphNode,
+  prefix: string = '',
+  isLast: boolean = true,
+  depth: number = 0
+): string => {
   if (depth > 4) return ''; // Limit depth
   let result = '';
   const connector = isLast ? '└── ' : '├── ';
   const extension = isLast ? '    ' : '│   ';
 
   if (depth > 0) {
-    const sizeStr = node.type === 'file' && node.size ? ` (${(node.size / 1024).toFixed(1)}KB)` : '';
+    const sizeStr =
+      node.type === 'file' && node.size ? ` (${(node.size / 1024).toFixed(1)}KB)` : '';
     result += `${prefix}${connector}${node.name}${node.type === 'directory' ? '/' : sizeStr}\n`;
   } else {
     result += `${node.name}/\n`;
   }
 
   if (node.children && node.type === 'directory') {
-    const sorted = [...node.children].sort((a: any, b: any) => {
+    const sorted = [...node.children].sort((a, b) => {
       if (a.type === b.type) return a.name.localeCompare(b.name);
       return a.type === 'directory' ? -1 : 1;
     });
-    sorted.forEach((child: any, i: number) => {
-      result += treeToString(child, prefix + (depth > 0 ? extension : ''), i === sorted.length - 1, depth + 1);
+    sorted.forEach((child, i) => {
+      result += treeToString(
+        child,
+        prefix + (depth > 0 ? extension : ''),
+        i === sorted.length - 1,
+        depth + 1
+      );
     });
   }
   return result;
@@ -40,21 +51,21 @@ export const blueprintCommand = () => {
   const langMap: { [key: string]: number } = {};
   const moduleMap: { [key: string]: string[] } = {};
 
-  const collect = (node: any, parentModule: string = '') => {
+  const collect = (node: CodegraphNode, parentModule: string = '') => {
     if (node.type === 'file') {
       const ext = node.extension || '(none)';
       langMap[ext] = (langMap[ext] || 0) + 1;
     }
     if (node.type === 'directory' && node.children) {
       const modName = parentModule ? `${parentModule}/${node.name}` : node.name;
-      const files = node.children.filter((c: any) => c.type === 'file').map((c: any) => c.name);
+      const files = node.children.filter((c) => c.type === 'file').map((c) => c.name);
       if (files.length > 0) {
         moduleMap[modName] = files;
       }
-      node.children.forEach((c: any) => collect(c, modName));
+      node.children.forEach((c) => collect(c, modName));
     }
   };
-  if (tree.children) tree.children.forEach((c: any) => collect(c));
+  if (tree.children) tree.children.forEach((c) => collect(c));
 
   // Build blueprint doc
   let blueprint = `# 🧬 Architecture Blueprint\n\n`;
@@ -67,16 +78,20 @@ export const blueprintCommand = () => {
   // Language breakdown
   blueprint += `## 🗂️ Language Summary\n\n`;
   blueprint += `| Extension | Count |\n|:---|:---|\n`;
-  Object.keys(langMap).sort((a, b) => langMap[b] - langMap[a]).forEach((ext) => {
-    blueprint += `| ${ext} | ${langMap[ext]} |\n`;
-  });
+  Object.keys(langMap)
+    .sort((a, b) => langMap[b] - langMap[a])
+    .forEach((ext) => {
+      blueprint += `| ${ext} | ${langMap[ext]} |\n`;
+    });
   blueprint += `\n---\n\n`;
 
   // Module summary
   blueprint += `## 🧩 Module Summary\n\n`;
   Object.keys(moduleMap).forEach((mod) => {
     blueprint += `### ${mod}/\n`;
-    moduleMap[mod].forEach((f) => { blueprint += `- ${f}\n`; });
+    moduleMap[mod].forEach((f) => {
+      blueprint += `- ${f}\n`;
+    });
     blueprint += '\n';
   });
 

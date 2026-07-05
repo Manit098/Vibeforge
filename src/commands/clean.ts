@@ -20,7 +20,13 @@ const cleanDir = (dir: string): number => {
   return count;
 };
 
-export const cleanCommand = (options: any) => {
+interface CleanOptions {
+  records?: boolean;
+  memory?: boolean;
+  all?: boolean;
+}
+
+export const cleanCommand = (options: CleanOptions) => {
   const vibeforgeDir = ensureWorkspace();
 
   if (isWorkspaceLocked(vibeforgeDir)) {

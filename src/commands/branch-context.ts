@@ -37,7 +37,11 @@ const getBranchName = async (): Promise<string> => {
   return 'default-branch';
 };
 
-export const branchContextCommand = async (options: { save?: boolean; restore?: boolean; list?: boolean }) => {
+export const branchContextCommand = async (options: {
+  save?: boolean;
+  restore?: boolean;
+  list?: boolean;
+}) => {
   const vibeforgeDir = ensureWorkspace();
   const activeBranch = await getBranchName();
 
@@ -76,18 +80,22 @@ export const branchContextCommand = async (options: { save?: boolean; restore?: 
         checklist: fs.existsSync(clPath),
         memoryCount: fs.existsSync(memDir) ? fs.readdirSync(memDir).length : 0,
         plansCount: fs.existsSync(plansDir) ? fs.readdirSync(plansDir).length : 0,
-      }
+      },
     };
     fs.writeFileSync(path.join(branchDir, 'meta.json'), JSON.stringify(meta, null, 2));
 
-    console.log(`${GREEN}✔ Snapshot context saved successfully for branch "${activeBranch}"!${RESET}`);
+    console.log(
+      `${GREEN}✔ Snapshot context saved successfully for branch "${activeBranch}"!${RESET}`
+    );
     console.log(`  Saved to: .vibeforge/branches/${encodeURIComponent(activeBranch)}/\n`);
     return;
   }
 
   if (options.restore) {
     if (!fs.existsSync(branchDir)) {
-      console.log(`${RED}❌ Error: No saved context snapshot found for branch "${activeBranch}".${RESET}`);
+      console.log(
+        `${RED}❌ Error: No saved context snapshot found for branch "${activeBranch}".${RESET}`
+      );
       console.log(`   Save a snapshot first using: vibeforge branch-context --save\n`);
       return;
     }
@@ -117,7 +125,9 @@ export const branchContextCommand = async (options: { save?: boolean; restore?: 
     const meta = JSON.parse(fs.readFileSync(path.join(branchDir, 'meta.json'), 'utf-8'));
     console.log(`${GREEN}✔ Context successfully restored for branch "${activeBranch}"!${RESET}`);
     console.log(`  Snapshot taken at: ${new Date(meta.timestamp).toLocaleString()}`);
-    console.log(`  Restored checklist, ${meta.filesSaved.memoryCount} memory logs, and ${meta.filesSaved.plansCount} plans.\n`);
+    console.log(
+      `  Restored checklist, ${meta.filesSaved.memoryCount} memory logs, and ${meta.filesSaved.plansCount} plans.\n`
+    );
     return;
   }
 
@@ -128,7 +138,7 @@ export const branchContextCommand = async (options: { save?: boolean; restore?: 
       return;
     }
 
-    const snapDirs = fs.readdirSync(branchesParent).filter(d => {
+    const snapDirs = fs.readdirSync(branchesParent).filter((d) => {
       return fs.statSync(path.join(branchesParent, d)).isDirectory();
     });
 
@@ -142,8 +152,12 @@ export const branchContextCommand = async (options: { save?: boolean; restore?: 
       const metaPath = path.join(branchesParent, d, 'meta.json');
       if (fs.existsSync(metaPath)) {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-        console.log(`  • ${CYAN}${meta.branch.padEnd(25)}${RESET} [Saved: ${new Date(meta.timestamp).toLocaleString()}]`);
-        console.log(`    🗂️ Checklist: ${meta.filesSaved.checklist ? 'Yes' : 'No'} | Memory count: ${meta.filesSaved.memoryCount} | Plans count: ${meta.filesSaved.plansCount}`);
+        console.log(
+          `  • ${CYAN}${meta.branch.padEnd(25)}${RESET} [Saved: ${new Date(meta.timestamp).toLocaleString()}]`
+        );
+        console.log(
+          `    🗂️ Checklist: ${meta.filesSaved.checklist ? 'Yes' : 'No'} | Memory count: ${meta.filesSaved.memoryCount} | Plans count: ${meta.filesSaved.plansCount}`
+        );
       }
     }
     console.log('');
@@ -152,7 +166,11 @@ export const branchContextCommand = async (options: { save?: boolean; restore?: 
 
   // Default: show usage
   console.log(`${BOLD}Usage:${RESET}`);
-  console.log(`  vibeforge branch-context --save      - Save current context state linked to active branch`);
-  console.log(`  vibeforge branch-context --restore   - Restore context state from active branch snapshot`);
+  console.log(
+    `  vibeforge branch-context --save      - Save current context state linked to active branch`
+  );
+  console.log(
+    `  vibeforge branch-context --restore   - Restore context state from active branch snapshot`
+  );
   console.log(`  vibeforge branch-context --list      - List all saved branch context snapshots\n`);
 };

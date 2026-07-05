@@ -7,6 +7,8 @@ import { addCommand } from './commands/add';
 import { recordCommand } from './commands/record';
 import { contextCommand } from './commands/context';
 import { promptCommand } from './commands/prompt';
+import { linkCommand } from './commands/link';
+import { graphCommand } from './commands/graph';
 import { hookCommand } from './commands/hook';
 import { dashboardCommand } from './commands/dashboard';
 import { diffCommand } from './commands/diff';
@@ -39,6 +41,7 @@ import { generateAgentMd } from './services/agent';
 import { updateContext } from './services/context';
 
 const program = new Command();
+const collectOption = (value: string, previous: string[]): string[] => [...previous, value];
 
 program.name('vibeforge').description('Your codebase, always in context. 🌟').version('3.5.0');
 
@@ -61,9 +64,9 @@ program
   .action(addCommand);
 
 program
-  .command('prompt <text>')
+  .command('prompt <filePath>')
   .description('Record an AI prompt 📝')
-  .option('--reason <reason>', 'Reasoning/Goal behind prompt')
+  .option('--copy', 'Copy prompt to clipboard when supported')
   .action(promptCommand);
 
 program
@@ -83,7 +86,11 @@ hookCmd
 
 const recordCmd = program.command('record');
 recordCmd
+  .argument('[type]', 'Memory type: decision, rule, feature, doc, prompt, note, challenge')
+  .argument('[content]', 'Memory content')
   .description('Manage codebase records and knowledge graphs 🔍')
+  .option('--tag <tag>', 'Add a memory tag', collectOption, [])
+  .option('--file <file>', 'Link memory to a file', collectOption, [])
   .option('--commit', 'Record the latest git commit')
   .option('--generate <path>', 'Generate a record for the given path')
   .option('--watch <path>', 'Watch a path and generate records on changes')
@@ -91,10 +98,21 @@ recordCmd
   .action(recordCommand);
 
 program
-  .command('context')
+  .command('context [filePath]')
   .description('Generate or update AI context 📚')
   .option('--stats', 'Show token count and stats')
   .action(contextCommand);
+
+program
+  .command('link <memoryId> <filePath>')
+  .description('Link an existing memory item to a file')
+  .action(linkCommand);
+
+program
+  .command('graph')
+  .description('Export project memory as a graph')
+  .option('--format <format>', 'Export format: json or cypher', 'json')
+  .action(graphCommand);
 
 const updateCmd = program.command('update');
 updateCmd

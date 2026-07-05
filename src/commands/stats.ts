@@ -5,9 +5,12 @@ import { ensureWorkspace } from '../utils/fs';
 
 const BOLD = '\x1b[1m';
 const RESET = '\x1b[0m';
-const DIM = '\x1b[2m';
 
-export const statsCommand = async (options: any) => {
+interface StatsOptions {
+  weekly?: boolean;
+}
+
+export const statsCommand = async (options: StatsOptions) => {
   const vibeforgeDir = ensureWorkspace();
   const isWeekly = options.weekly || false;
 
@@ -61,7 +64,9 @@ export const statsCommand = async (options: any) => {
     }).length;
 
     const icon = sub === 'records' ? '📁' : sub === 'memory' ? '🧠' : '📋';
-    console.log(`  ${icon} ${sub.charAt(0).toUpperCase() + sub.slice(1)}: ${BOLD}${recent}${RESET} new ${period} (${total} total)`);
+    console.log(
+      `  ${icon} ${sub.charAt(0).toUpperCase() + sub.slice(1)}: ${BOLD}${recent}${RESET} new ${period} (${total} total)`
+    );
   });
 
   // Context rebuilds (check modification time)
@@ -83,7 +88,10 @@ export const statsCommand = async (options: any) => {
     });
   };
   calcSize(vibeforgeDir);
-  const sizeStr = totalSize > 1048576 ? (totalSize / 1048576).toFixed(2) + ' MB' : (totalSize / 1024).toFixed(1) + ' KB';
+  const sizeStr =
+    totalSize > 1048576
+      ? (totalSize / 1048576).toFixed(2) + ' MB'
+      : (totalSize / 1024).toFixed(1) + ' KB';
   console.log(`  💾 Workspace size: ${BOLD}${sizeStr}${RESET}`);
   console.log('');
 };

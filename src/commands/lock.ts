@@ -11,7 +11,14 @@ export const lockCommand = () => {
     return;
   }
 
-  fs.writeFileSync(lockFile, JSON.stringify({ lockedAt: new Date().toISOString(), lockedBy: process.env.USERNAME || 'unknown' }, null, 2));
+  fs.writeFileSync(
+    lockFile,
+    JSON.stringify(
+      { lockedAt: new Date().toISOString(), lockedBy: process.env.USERNAME || 'unknown' },
+      null,
+      2
+    )
+  );
   console.log('\n🔐 Workspace LOCKED — clean and delete operations are now blocked.');
   console.log('   Unlock with: vibeforge unlock\n');
 };

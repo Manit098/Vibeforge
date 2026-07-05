@@ -20,7 +20,17 @@ export interface TestScanResult {
 // Allowed extensions for source files
 const SRC_EXTS = ['.ts', '.js', '.tsx', '.jsx', '.py', '.go', '.java', '.rs', '.c', '.cpp'];
 // Excluded directory names
-const EXCLUDED_DIRS = ['node_modules', '.git', '.vibeforge', 'dist', 'build', 'out', 'coverage', 'temp', 'tmp'];
+const EXCLUDED_DIRS = [
+  'node_modules',
+  '.git',
+  '.vibeforge',
+  'dist',
+  'build',
+  'out',
+  'coverage',
+  'temp',
+  'tmp',
+];
 
 /**
  * Recursively scans directory for source files
@@ -38,12 +48,12 @@ const findSourceFiles = (dir: string, baseDir: string, filesList: string[]) => {
       const ext = path.extname(item.name).toLowerCase();
       // Skip type definitions or test files themselves
       if (item.name.endsWith('.d.ts')) continue;
-      
+
       // Check if it's a test file
       const nameLower = item.name.toLowerCase();
       if (
-        nameLower.includes('.test.') || 
-        nameLower.includes('.spec.') || 
+        nameLower.includes('.test.') ||
+        nameLower.includes('.spec.') ||
         dir.split(path.sep).includes('__tests__') ||
         dir.split(path.sep).includes('tests')
       ) {
@@ -104,7 +114,8 @@ export const runTestScan = (workspaceRoot: string): TestScanResult => {
   const totalSourceFiles = sourceFiles.length;
   const testedCount = testedFiles.length;
   const untestedCount = untestedFiles.length;
-  const coverageRatio = totalSourceFiles > 0 ? Math.round((testedCount / totalSourceFiles) * 100) : 100;
+  const coverageRatio =
+    totalSourceFiles > 0 ? Math.round((testedCount / totalSourceFiles) * 100) : 100;
 
   return {
     coverageRatio,
@@ -124,7 +135,7 @@ export const testScanCommand = () => {
   const results = runTestScan(workspaceRoot);
 
   const color = results.coverageRatio >= 80 ? GREEN : results.coverageRatio >= 50 ? YELLOW : RED;
-  
+
   // Custom progress bar
   const pct = Math.round(results.coverageRatio / 5);
   const filled = '█'.repeat(pct);
@@ -138,7 +149,7 @@ export const testScanCommand = () => {
 
   if (results.untestedFiles.length > 0) {
     console.log(`${BOLD}⚠️  Untested Modules (Action Required):${RESET}`);
-    results.untestedFiles.slice(0, 10).forEach(f => {
+    results.untestedFiles.slice(0, 10).forEach((f) => {
       console.log(`  ${RED}✗${RESET} ${f}`);
     });
     if (results.untestedFiles.length > 10) {
@@ -153,6 +164,8 @@ export const testScanCommand = () => {
     console.log(`  To cover ${BOLD}${firstUntested}${RESET}, create a test file:`);
     console.log(`  ${CYAN}→ ${testFp}${RESET}\n`);
   } else {
-    console.log(`${GREEN}✨ Congratulations! Your codebase has 100% test coverage structure!${RESET}\n`);
+    console.log(
+      `${GREEN}✨ Congratulations! Your codebase has 100% test coverage structure!${RESET}\n`
+    );
   }
 };

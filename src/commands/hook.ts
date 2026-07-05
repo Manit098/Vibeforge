@@ -30,7 +30,7 @@ export const hookCommand = () => {
   fs.writeFileSync(postCommitPath, content, { mode: 0o755 });
   try {
     fs.chmodSync(postCommitPath, 0o755);
-  } catch (err) {
+  } catch {
     // Ignore chmod error on Windows
   }
   console.log('✅ Git post-commit hook installed successfully!');

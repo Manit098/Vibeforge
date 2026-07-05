@@ -3,7 +3,12 @@ import fs from 'fs';
 import { ensureWorkspace } from '../utils/fs';
 import { generateTimestamp } from '../utils/crypto';
 
-export const decisionCommand = (text: string, options: any) => {
+interface DecisionOptions {
+  reason?: string;
+  impact?: string;
+}
+
+export const decisionCommand = (text: string, options: DecisionOptions) => {
   const vibeforgeDir = ensureWorkspace();
   const memDir = path.join(vibeforgeDir, 'memory');
   if (!fs.existsSync(memDir)) fs.mkdirSync(memDir, { recursive: true });

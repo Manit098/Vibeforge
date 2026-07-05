@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-import { ensureWorkspace } from '../utils/fs';
 import { scanCodebase } from '../services/codegraph';
+import { CodegraphNode } from '../types';
 
 interface LangStat {
   ext: string;
@@ -9,7 +9,11 @@ interface LangStat {
   totalBytes: number;
 }
 
-const collectStats = (node: any, stats: LangStat[], largest: { name: string; size: number }[]) => {
+const collectStats = (
+  node: CodegraphNode,
+  stats: LangStat[],
+  largest: { name: string; size: number }[]
+) => {
   if (node.type === 'file') {
     const ext = node.extension || '(none)';
     let entry = stats.find((s) => s.ext === ext);
@@ -28,7 +32,7 @@ const collectStats = (node: any, stats: LangStat[], largest: { name: string; siz
   }
 };
 
-const countNodes = (node: any): { files: number; dirs: number } => {
+const countNodes = (node: CodegraphNode): { files: number; dirs: number } => {
   if (node.type === 'file') return { files: 1, dirs: 0 };
   let files = 0,
     dirs = 1;
@@ -67,10 +71,15 @@ export const analyzeCommand = () => {
 
   const totalFiles = langStats.reduce((s, l) => s + l.count, 0);
   const totalBytes = langStats.reduce((s, l) => s + l.totalBytes, 0);
-  const totalSizeStr = totalBytes > 1048576 ? (totalBytes / 1048576).toFixed(2) + ' MB' : (totalBytes / 1024).toFixed(1) + ' KB';
+  const totalSizeStr =
+    totalBytes > 1048576
+      ? (totalBytes / 1048576).toFixed(2) + ' MB'
+      : (totalBytes / 1024).toFixed(1) + ' KB';
 
   console.log('┌─────────────────────────────────────────────────────────────┐');
-  console.log(`│  📂 Directories: ${String(dirs).padEnd(8)} 📄 Files: ${String(files).padEnd(8)} 💾 Size: ${totalSizeStr.padEnd(10)} │`);
+  console.log(
+    `│  📂 Directories: ${String(dirs).padEnd(8)} 📄 Files: ${String(files).padEnd(8)} 💾 Size: ${totalSizeStr.padEnd(10)} │`
+  );
   console.log('└─────────────────────────────────────────────────────────────┘\n');
 
   // Language breakdown
@@ -79,8 +88,13 @@ export const analyzeCommand = () => {
   const maxCount = langStats[0]?.count || 1;
   langStats.slice(0, 15).forEach((l) => {
     const pct = ((l.count / totalFiles) * 100).toFixed(1);
-    const sizeStr = l.totalBytes > 1048576 ? (l.totalBytes / 1048576).toFixed(1) + 'MB' : (l.totalBytes / 1024).toFixed(1) + 'KB';
-    console.log(`  ${l.ext.padEnd(10)} ${bar(l.count, maxCount)} ${String(l.count).padStart(4)} files (${pct.padStart(5)}%) ${sizeStr.padStart(8)}`);
+    const sizeStr =
+      l.totalBytes > 1048576
+        ? (l.totalBytes / 1048576).toFixed(1) + 'MB'
+        : (l.totalBytes / 1024).toFixed(1) + 'KB';
+    console.log(
+      `  ${l.ext.padEnd(10)} ${bar(l.count, maxCount)} ${String(l.count).padStart(4)} files (${pct.padStart(5)}%) ${sizeStr.padStart(8)}`
+    );
   });
   if (langStats.length > 15) {
     console.log(`  ... and ${langStats.length - 15} more file types`);
@@ -91,7 +105,8 @@ export const analyzeCommand = () => {
   console.log('─'.repeat(60));
   largest.slice(0, 10).forEach((f, i) => {
     const rel = path.relative(cwd, f.name);
-    const sizeStr = f.size > 1048576 ? (f.size / 1048576).toFixed(2) + ' MB' : (f.size / 1024).toFixed(1) + ' KB';
+    const sizeStr =
+      f.size > 1048576 ? (f.size / 1048576).toFixed(2) + ' MB' : (f.size / 1024).toFixed(1) + ' KB';
     console.log(`  ${String(i + 1).padStart(2)}. ${sizeStr.padStart(10)}  ${rel}`);
   });
 
@@ -117,7 +132,9 @@ export const analyzeCommand = () => {
     const contextPath = path.join(vibeforgeDir, 'context.md');
     if (fs.existsSync(contextPath)) {
       const ctx = fs.readFileSync(contextPath, 'utf-8');
-      console.log(`  Context: ${(ctx.length / 1024).toFixed(1)} KB / ~${Math.ceil(ctx.length / 4)} tokens`);
+      console.log(
+        `  Context: ${(ctx.length / 1024).toFixed(1)} KB / ~${Math.ceil(ctx.length / 4)} tokens`
+      );
     }
     const subdirs = ['docs', 'memory', 'records', 'plans'];
     subdirs.forEach((sub) => {

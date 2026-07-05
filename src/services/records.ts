@@ -145,7 +145,8 @@ ${diffText}
     }
 
     return result;
-  } catch (error: any) {
-    throw new Error(`Failed to record commit: ${error.message}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to record commit: ${message}`);
   }
 };

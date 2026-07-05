@@ -46,8 +46,9 @@ export const diffCommand = async () => {
     } else {
       console.log('\nℹ️  Not a git repository — skipping commit analysis.');
     }
-  } catch (err: any) {
-    console.log(`\nℹ️  Git analysis skipped: ${err.message}`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.log(`\nℹ️  Git analysis skipped: ${message}`);
   }
 
   // Check workspace changes

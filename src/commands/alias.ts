@@ -1,10 +1,16 @@
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import { ensureWorkspace } from '../utils/fs';
 
 const CONFIG_FILE = 'config.json';
 
-const loadConfig = (vibeforgeDir: string): any => {
+interface AliasConfig {
+  aliases?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+const loadConfig = (vibeforgeDir: string): AliasConfig => {
   const fp = path.join(vibeforgeDir, CONFIG_FILE);
   if (fs.existsSync(fp)) {
     return JSON.parse(fs.readFileSync(fp, 'utf-8'));
@@ -12,7 +18,7 @@ const loadConfig = (vibeforgeDir: string): any => {
   return { aliases: {} };
 };
 
-const saveConfig = (vibeforgeDir: string, config: any) => {
+const saveConfig = (vibeforgeDir: string, config: AliasConfig) => {
   fs.writeFileSync(path.join(vibeforgeDir, CONFIG_FILE), JSON.stringify(config, null, 2));
 };
 
@@ -63,10 +69,11 @@ export const aliasRunCommand = (name: string) => {
   const cmd = aliases[name];
   console.log(`\n📎 Running alias "${name}" → vibeforge ${cmd}\n`);
 
-  // Execute via child process
-  const { execSync } = require('child_process');
   try {
-    execSync(`node ${path.join(__dirname, '..', 'index.js')} ${cmd}`, { stdio: 'inherit', cwd: process.cwd() });
+    execSync(`node ${path.join(__dirname, '..', 'index.js')} ${cmd}`, {
+      stdio: 'inherit',
+      cwd: process.cwd(),
+    });
   } catch {
     console.error('❌ Alias execution failed');
   }

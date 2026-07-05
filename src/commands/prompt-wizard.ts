@@ -8,17 +8,18 @@ const BOLD = '\x1b[1m';
 const RESET = '\x1b[0m';
 const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
-const CYAN = '\x1b[36m';
 
 const askQuestion = (query: string): Promise<string> => {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
-  return new Promise((resolve) => rl.question(query, (ans) => {
-    rl.close();
-    resolve(ans.trim());
-  }));
+  return new Promise((resolve) =>
+    rl.question(query, (ans) => {
+      rl.close();
+      resolve(ans.trim());
+    })
+  );
 };
 
 export const copyToClipboard = (text: string): boolean => {
@@ -27,7 +28,9 @@ export const copyToClipboard = (text: string): boolean => {
       // Write to temp file first to avoid command line length limits or escaping issues
       const tempFile = path.join(process.cwd(), '.vibeforge', 'temp_clip.txt');
       fs.writeFileSync(tempFile, text, 'utf-8');
-      execSync(`powershell -NoProfile -Command "Get-Content -Raw -Path '${tempFile}' | Set-Clipboard"`);
+      execSync(
+        `powershell -NoProfile -Command "Get-Content -Raw -Path '${tempFile}' | Set-Clipboard"`
+      );
       if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
     } else if (process.platform === 'darwin') {
       execSync('pbcopy', { input: text });
@@ -42,7 +45,7 @@ export const copyToClipboard = (text: string): boolean => {
 
 export const promptWizardCommand = async () => {
   const vibeforgeDir = ensureWorkspace();
-  
+
   console.log(`\n${BOLD}💬 VibeForge AI Prompt Engineering Wizard${RESET}`);
   console.log(`Crafting the ultimate context-aware LLM prompt...\n`);
 
@@ -52,12 +55,26 @@ export const promptWizardCommand = async () => {
     return;
   }
 
-  const filesInput = await askQuestion(`\n${BOLD}2. Which files are relevant? (comma-separated relative paths, e.g. src/index.ts, src/utils.ts)${RESET}\n> `);
-  
-  const rulesInput = await askQuestion(`\n${BOLD}3. Any special constraints or style rules? (e.g. strict types, write unit tests, simple functions)${RESET}\n> `);
+  const filesInput = await askQuestion(
+    `\n${BOLD}2. Which files are relevant? (comma-separated relative paths, e.g. src/index.ts, src/utils.ts)${RESET}\n> `
+  );
 
-  const files = filesInput ? filesInput.split(',').map(f => f.trim()).filter(Boolean) : [];
-  const rules = rulesInput ? rulesInput.split(',').map(r => r.trim()).filter(Boolean) : [];
+  const rulesInput = await askQuestion(
+    `\n${BOLD}3. Any special constraints or style rules? (e.g. strict types, write unit tests, simple functions)${RESET}\n> `
+  );
+
+  const files = filesInput
+    ? filesInput
+        .split(',')
+        .map((f) => f.trim())
+        .filter(Boolean)
+    : [];
+  const rules = rulesInput
+    ? rulesInput
+        .split(',')
+        .map((r) => r.trim())
+        .filter(Boolean)
+    : [];
 
   const compiledPrompt = buildCustomPrompt(objective, files, rules);
 
@@ -70,7 +87,9 @@ export const promptWizardCommand = async () => {
   if (copied) {
     console.log(`${GREEN}✔ Prompt successfully copied to system clipboard!${RESET}\n`);
   } else {
-    console.log(`${YELLOW}⚠️  Could not auto-copy to clipboard. Please copy manually from .vibeforge/prompt.txt${RESET}\n`);
+    console.log(
+      `${YELLOW}⚠️  Could not auto-copy to clipboard. Please copy manually from .vibeforge/prompt.txt${RESET}\n`
+    );
   }
 };
 

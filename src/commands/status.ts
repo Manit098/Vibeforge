@@ -46,9 +46,10 @@ export const statusCommand = async () => {
     });
   };
   calcSize(vibeforgeDir);
-  const totalSizeStr = totalSize > 1024 * 1024
-    ? (totalSize / (1024 * 1024)).toFixed(2) + ' MB'
-    : (totalSize / 1024).toFixed(1) + ' KB';
+  const totalSizeStr =
+    totalSize > 1024 * 1024
+      ? (totalSize / (1024 * 1024)).toFixed(2) + ' MB'
+      : (totalSize / 1024).toFixed(1) + ' KB';
 
   // Git info
   let branch = '-';
@@ -61,7 +62,8 @@ export const statusCommand = async () => {
       branch = st.current || '-';
       const log = await git.log({ maxCount: 1 });
       if (log.latest) {
-        lastCommit = log.latest.message.substring(0, 40) + (log.latest.message.length > 40 ? '...' : '');
+        lastCommit =
+          log.latest.message.substring(0, 40) + (log.latest.message.length > 40 ? '...' : '');
       }
     }
   } catch {

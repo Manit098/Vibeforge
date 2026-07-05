@@ -26,12 +26,18 @@ const readDirRecursive = (dir: string): { [key: string]: string } => {
   return result;
 };
 
-export const exportCommand = (options: any) => {
+interface ExportOptions {
+  format?: string;
+  output?: string;
+}
+
+export const exportCommand = (options: ExportOptions) => {
   const vibeforgeDir = ensureWorkspace();
   const format = options.format || 'json';
   const timestamp = generateTimestamp().replace(/[:.]/g, '-');
 
-  const defaultFilename = format === 'json' ? `vibeforge-export-${timestamp}.json` : `vibeforge-export-${timestamp}.md`;
+  const defaultFilename =
+    format === 'json' ? `vibeforge-export-${timestamp}.json` : `vibeforge-export-${timestamp}.md`;
   const outputPath = path.resolve(options.output || defaultFilename);
 
   console.log(`\n📦 Exporting workspace as ${format.toUpperCase()}...\n`);

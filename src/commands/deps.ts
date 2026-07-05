@@ -17,7 +17,9 @@ export const depsCommand = () => {
 
   console.log('\n🔗 Dependency Analysis\n');
   console.log(`  📦 Project: ${pkg.name || 'unknown'} v${pkg.version || '0.0.0'}`);
-  console.log(`  Production: ${depsKeys.length} | Dev: ${devKeys.length} | Total: ${depsKeys.length + devKeys.length}\n`);
+  console.log(
+    `  Production: ${depsKeys.length} | Dev: ${devKeys.length} | Total: ${depsKeys.length + devKeys.length}\n`
+  );
 
   if (depsKeys.length > 0) {
     console.log('  ┌─ Production Dependencies ────────────────────────────────┐');
@@ -50,5 +52,7 @@ export const depsCommand = () => {
 
   // Check node_modules
   const nmExists = fs.existsSync(path.join(process.cwd(), 'node_modules'));
-  console.log(`\n  📂 node_modules: ${nmExists ? '✅ installed' : '❌ missing — run npm install'}\n`);
+  console.log(
+    `\n  📂 node_modules: ${nmExists ? '✅ installed' : '❌ missing — run npm install'}\n`
+  );
 };
