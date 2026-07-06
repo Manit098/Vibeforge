@@ -61,7 +61,7 @@ export const contextCommand = (
   const vibeforgeDir = ensureWorkspace();
   const result = updateContext(vibeforgeDir, { silent: true });
 
-  console.log('\n📚 Context rebuilt\n');
+  console.log('\n Context rebuilt\n');
   console.log(`  File: ${result.contextPath}`);
   console.log(
     `  Sources: ${result.stats.docs} docs | ${result.stats.memory} memory | ${result.stats.records} records | ${result.stats.plans} plans`
@@ -75,7 +75,7 @@ export const contextCommand = (
     const contextContent = fs.readFileSync(contextPath, 'utf-8');
     const tokens = estimateTokens(contextContent);
 
-    console.log('\n📊 Context Stats');
+    console.log('\n Context Stats');
     console.log(`Characters: ${contextContent.length}`);
     console.log(`Estimated Tokens: ~${tokens}`);
     console.log(`Path: ${contextPath}`);

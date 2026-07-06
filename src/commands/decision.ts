@@ -19,7 +19,7 @@ export const decisionCommand = (text: string, options: DecisionOptions) => {
   const safeTs = ts.replace(/[:.]/g, '-');
   const filename = `decision_${safeTs}.md`;
 
-  const content = `# 🧩 Decision Record
+  const content = `#  Decision Record
 
 **Timestamp:** ${ts}
 **Decision:** ${text}
@@ -39,10 +39,10 @@ ${impact}
 
   fs.writeFileSync(path.join(memDir, filename), content);
 
-  console.log('\n🧩 Decision Recorded\n');
-  console.log(`  📝 Decision: ${text}`);
-  console.log(`  💡 Reason:   ${reason}`);
-  console.log(`  📊 Impact:   ${impact}`);
-  console.log(`  📂 Saved to: memory/${filename}`);
+  console.log('\n Decision Recorded\n');
+  console.log(`   Decision: ${text}`);
+  console.log(`   Reason:   ${reason}`);
+  console.log(`   Impact:   ${impact}`);
+  console.log(`   Saved to: memory/${filename}`);
   console.log('');
 };

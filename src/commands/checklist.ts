@@ -11,7 +11,7 @@ export const checklistCommand = (text: string) => {
   if (fs.existsSync(clPath)) {
     content = fs.readFileSync(clPath, 'utf-8');
   } else {
-    content = `# 📋 Project Checklist\n\n`;
+    content = `#  Project Checklist\n\n`;
   }
 
   const ts = new Date().toISOString().split('T')[0];
@@ -20,7 +20,7 @@ export const checklistCommand = (text: string) => {
   fs.writeFileSync(clPath, content);
   updateContext(vibeforgeDir);
 
-  console.log(`\n📋 Added to checklist: "${text}"`);
+  console.log(`\n Added to checklist: "${text}"`);
 
   // Show current counts
   const pending = (content.match(/- \[ \]/g) || []).length;
@@ -34,9 +34,7 @@ export const checklistShowCommand = () => {
   const clPath = path.join(vibeforgeDir, 'checklist.md');
 
   if (!fs.existsSync(clPath)) {
-    console.log(
-      '\n📋 No checklist found. Create one with: vibeforge checklist "Task description"\n'
-    );
+    console.log('\n No checklist found. Create one with: vibeforge checklist "Task description"\n');
     return;
   }
 
@@ -45,8 +43,8 @@ export const checklistShowCommand = () => {
   const done = (content.match(/- \[x\]/g) || []).length;
 
   console.log(`\n${content}`);
-  console.log(`─────────────────────────────────`);
-  console.log(`  ⬜ Pending: ${pending}  ✅ Completed: ${done}  📊 Total: ${pending + done}\n`);
+  console.log(``);
+  console.log(`   Pending: ${pending}   Completed: ${done}   Total: ${pending + done}\n`);
 };
 
 export const checklistDoneCommand = (index: string) => {
@@ -54,7 +52,7 @@ export const checklistDoneCommand = (index: string) => {
   const clPath = path.join(vibeforgeDir, 'checklist.md');
 
   if (!fs.existsSync(clPath)) {
-    console.error('❌ No checklist found.');
+    console.error(' No checklist found.');
     process.exit(1);
   }
 
@@ -76,7 +74,7 @@ export const checklistDoneCommand = (index: string) => {
   }
 
   if (targetLine === -1) {
-    console.error(`❌ Task #${idx} not found.`);
+    console.error(` Task #${idx} not found.`);
     process.exit(1);
   }
 
@@ -84,5 +82,5 @@ export const checklistDoneCommand = (index: string) => {
   fs.writeFileSync(clPath, lines.join('\n'));
   updateContext(vibeforgeDir);
 
-  console.log(`\n✅ Completed task #${idx}: ${lines[targetLine].replace('- [x] ', '').trim()}\n`);
+  console.log(`\n Completed task #${idx}: ${lines[targetLine].replace('- [x] ', '').trim()}\n`);
 };

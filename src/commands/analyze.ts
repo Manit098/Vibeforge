@@ -48,13 +48,13 @@ const countNodes = (node: CodegraphNode): { files: number; dirs: number } => {
 
 const bar = (value: number, max: number, width: number = 25): string => {
   const filled = Math.round((value / max) * width);
-  return '█'.repeat(filled) + '░'.repeat(width - filled);
+  return ''.repeat(filled) + ''.repeat(width - filled);
 };
 
 export const analyzeCommand = () => {
   const cwd = process.cwd();
 
-  console.log('\n📈 VibeForge Codebase Analysis\n');
+  console.log('\n VibeForge Codebase Analysis\n');
   console.log(`Scanning: ${cwd}\n`);
 
   const tree = scanCodebase(cwd);
@@ -76,15 +76,15 @@ export const analyzeCommand = () => {
       ? (totalBytes / 1048576).toFixed(2) + ' MB'
       : (totalBytes / 1024).toFixed(1) + ' KB';
 
-  console.log('┌─────────────────────────────────────────────────────────────┐');
+  console.log('');
   console.log(
-    `│  📂 Directories: ${String(dirs).padEnd(8)} 📄 Files: ${String(files).padEnd(8)} 💾 Size: ${totalSizeStr.padEnd(10)} │`
+    `   Directories: ${String(dirs).padEnd(8)}  Files: ${String(files).padEnd(8)}  Size: ${totalSizeStr.padEnd(10)} `
   );
-  console.log('└─────────────────────────────────────────────────────────────┘\n');
+  console.log('\n');
 
   // Language breakdown
-  console.log('🗂️  Language Breakdown:');
-  console.log('─'.repeat(60));
+  console.log('  Language Breakdown:');
+  console.log('-'.repeat(60));
   const maxCount = langStats[0]?.count || 1;
   langStats.slice(0, 15).forEach((l) => {
     const pct = ((l.count / totalFiles) * 100).toFixed(1);
@@ -101,8 +101,8 @@ export const analyzeCommand = () => {
   }
 
   // Largest files
-  console.log('\n📏 Top 10 Largest Files:');
-  console.log('─'.repeat(60));
+  console.log('\n Top 10 Largest Files:');
+  console.log('-'.repeat(60));
   largest.slice(0, 10).forEach((f, i) => {
     const rel = path.relative(cwd, f.name);
     const sizeStr =
@@ -117,8 +117,8 @@ export const analyzeCommand = () => {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
       const deps = Object.keys(pkg.dependencies || {});
       const devDeps = Object.keys(pkg.devDependencies || {});
-      console.log(`\n📦 Dependencies: ${deps.length} production, ${devDeps.length} dev`);
-      console.log('─'.repeat(60));
+      console.log(`\n Dependencies: ${deps.length} production, ${devDeps.length} dev`);
+      console.log('-'.repeat(60));
       if (deps.length) console.log(`  Production: ${deps.join(', ')}`);
       if (devDeps.length) console.log(`  Dev:        ${devDeps.join(', ')}`);
     } catch {}
@@ -127,8 +127,8 @@ export const analyzeCommand = () => {
   // VibeForge workspace stats
   const vibeforgeDir = path.join(cwd, '.vibeforge');
   if (fs.existsSync(vibeforgeDir)) {
-    console.log('\n🧠 Workspace Health:');
-    console.log('─'.repeat(60));
+    console.log('\n Workspace Health:');
+    console.log('-'.repeat(60));
     const contextPath = path.join(vibeforgeDir, 'context.md');
     if (fs.existsSync(contextPath)) {
       const ctx = fs.readFileSync(contextPath, 'utf-8');

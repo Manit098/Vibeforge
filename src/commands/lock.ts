@@ -7,7 +7,7 @@ export const lockCommand = () => {
   const lockFile = path.join(vibeforgeDir, '.lock');
 
   if (fs.existsSync(lockFile)) {
-    console.log('\n🔐 Workspace is already locked.\n');
+    console.log('\n Workspace is already locked.\n');
     return;
   }
 
@@ -19,7 +19,7 @@ export const lockCommand = () => {
       2
     )
   );
-  console.log('\n🔐 Workspace LOCKED — clean and delete operations are now blocked.');
+  console.log('\n Workspace LOCKED  clean and delete operations are now blocked.');
   console.log('   Unlock with: vibeforge unlock\n');
 };
 
@@ -28,12 +28,12 @@ export const unlockCommand = () => {
   const lockFile = path.join(vibeforgeDir, '.lock');
 
   if (!fs.existsSync(lockFile)) {
-    console.log('\n🔓 Workspace is already unlocked.\n');
+    console.log('\n Workspace is already unlocked.\n');
     return;
   }
 
   fs.unlinkSync(lockFile);
-  console.log('\n🔓 Workspace UNLOCKED — all operations are now permitted.\n');
+  console.log('\n Workspace UNLOCKED  all operations are now permitted.\n');
 };
 
 export const isWorkspaceLocked = (vibeforgeDir: string): boolean => {

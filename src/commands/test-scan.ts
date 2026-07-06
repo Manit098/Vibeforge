@@ -129,7 +129,7 @@ export const runTestScan = (workspaceRoot: string): TestScanResult => {
 
 export const testScanCommand = () => {
   const workspaceRoot = process.cwd();
-  console.log(`\n${BOLD}🧪 VibeForge Test Coverage Scanner${RESET}`);
+  console.log(`\n${BOLD} VibeForge Test Coverage Scanner${RESET}`);
   console.log(`Scanning: ${workspaceRoot}...\n`);
 
   const results = runTestScan(workspaceRoot);
@@ -138,34 +138,34 @@ export const testScanCommand = () => {
 
   // Custom progress bar
   const pct = Math.round(results.coverageRatio / 5);
-  const filled = '█'.repeat(pct);
-  const empty = '░'.repeat(20 - pct);
+  const filled = ''.repeat(pct);
+  const empty = ''.repeat(20 - pct);
   console.log(`${BOLD}Test Health Score:${RESET} ${color}${results.coverageRatio}%${RESET}`);
   console.log(`${color}${filled}${empty}${RESET}\n`);
 
-  console.log(`  • Total Source Modules: ${results.totalSourceFiles}`);
-  console.log(`  • Tested Modules:       ${GREEN}${results.testedCount}${RESET}`);
-  console.log(`  • Untested Modules:     ${RED}${results.untestedCount}${RESET}\n`);
+  console.log(`   Total Source Modules: ${results.totalSourceFiles}`);
+  console.log(`   Tested Modules:       ${GREEN}${results.testedCount}${RESET}`);
+  console.log(`   Untested Modules:     ${RED}${results.untestedCount}${RESET}\n`);
 
   if (results.untestedFiles.length > 0) {
-    console.log(`${BOLD}⚠️  Untested Modules (Action Required):${RESET}`);
+    console.log(`${BOLD}  Untested Modules (Action Required):${RESET}`);
     results.untestedFiles.slice(0, 10).forEach((f) => {
-      console.log(`  ${RED}✗${RESET} ${f}`);
+      console.log(`  ${RED}${RESET} ${f}`);
     });
     if (results.untestedFiles.length > 10) {
       console.log(`  ... and ${results.untestedFiles.length - 10} more files`);
     }
 
-    console.log(`\n${BOLD}💡 Quick Test Scaffolding Suggestion:${RESET}`);
+    console.log(`\n${BOLD} Quick Test Scaffolding Suggestion:${RESET}`);
     const firstUntested = results.untestedFiles[0];
     const ext = path.extname(firstUntested);
     const base = path.basename(firstUntested, ext);
     const testFp = path.join(path.dirname(firstUntested), `${base}.test${ext}`);
     console.log(`  To cover ${BOLD}${firstUntested}${RESET}, create a test file:`);
-    console.log(`  ${CYAN}→ ${testFp}${RESET}\n`);
+    console.log(`  ${CYAN} ${testFp}${RESET}\n`);
   } else {
     console.log(
-      `${GREEN}✨ Congratulations! Your codebase has 100% test coverage structure!${RESET}\n`
+      `${GREEN} Congratulations! Your codebase has 100% test coverage structure!${RESET}\n`
     );
   }
 };

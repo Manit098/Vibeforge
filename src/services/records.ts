@@ -42,7 +42,7 @@ This record contains a knowledge graph of the codebase at the specified path.
 `
   );
 
-  console.log(`✅ Generated record: ${recordId}`);
+  console.log(` Generated record: ${recordId}`);
   return recordId;
 };
 
@@ -141,7 +141,7 @@ ${diffText}
     };
 
     if (!options.silent) {
-      console.log(`✅ Recorded commit: ${shortHash} -> ${recordFileName}`);
+      console.log(` Recorded commit: ${shortHash} -> ${recordFileName}`);
     }
 
     return result;

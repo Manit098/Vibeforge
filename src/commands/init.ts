@@ -132,7 +132,7 @@ export const initCommand = (options: InitOptions) => {
   const contextResult = updateContext(vibeforgeDir, { silent: true });
 
   console.log(
-    `\n${createdRoot ? '🎉 VibeForge workspace initialized!' : '🛠️ VibeForge workspace repaired and refreshed!'}`
+    `\n${createdRoot ? ' VibeForge workspace initialized!' : ' VibeForge workspace repaired and refreshed!'}`
   );
   console.log(`   Workspace: ${vibeforgeDir}`);
   console.log(`   Git repository: ${detectGitRepo() ? 'yes' : 'no'}`);

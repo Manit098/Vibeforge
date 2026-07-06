@@ -38,7 +38,7 @@ const searchInDir = (
 export const searchCommand = (query: string) => {
   const vibeforgeDir = ensureWorkspace();
 
-  console.log(`\n🔍 Searching for "${query}" across workspace...\n`);
+  console.log(`\n Searching for "${query}" across workspace...\n`);
 
   const results: { file: string; line: number; text: string }[] = [];
   const searchDirs = ['docs', 'memory', 'records', 'plans'];
@@ -76,7 +76,7 @@ export const searchCommand = (query: string) => {
   });
 
   Object.keys(grouped).forEach((file) => {
-    console.log(`  📄 ${file}`);
+    console.log(`   ${file}`);
     grouped[file].slice(0, 5).forEach((match) => {
       const truncated = match.text.length > 100 ? match.text.substring(0, 100) + '...' : match.text;
       console.log(`     L${match.line}: ${truncated}`);
@@ -87,5 +87,5 @@ export const searchCommand = (query: string) => {
     console.log('');
   });
 
-  console.log(`✅ Found ${results.length} match(es) in ${Object.keys(grouped).length} file(s).\n`);
+  console.log(` Found ${results.length} match(es) in ${Object.keys(grouped).length} file(s).\n`);
 };

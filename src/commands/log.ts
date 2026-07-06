@@ -70,7 +70,7 @@ export const logCommand = (options: LogOptions) => {
 
   items.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  console.log(`\n${BOLD}📜 VibeForge Activity Log${RESET}\n`);
+  console.log(`\n${BOLD} VibeForge Activity Log${RESET}\n`);
   console.log(
     `${DIM}Showing ${Math.min(limit, items.length)} of ${items.length} entries${RESET}\n`
   );
@@ -87,7 +87,7 @@ export const logCommand = (options: LogOptions) => {
     const nameShort =
       item.filename.length > 45 ? item.filename.substring(0, 42) + '...' : item.filename;
 
-    console.log(`  ${color}● ${typeLabel}${RESET} ${BOLD}${nameShort}${RESET}`);
+    console.log(`  ${color} ${typeLabel}${RESET} ${BOLD}${nameShort}${RESET}`);
     console.log(`    ${DIM}${dateStr}${RESET}`);
     if (item.preview) {
       console.log(`    ${DIM}${item.preview}${RESET}`);

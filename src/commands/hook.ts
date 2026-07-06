@@ -4,7 +4,7 @@ import fs from 'fs';
 export const hookCommand = () => {
   const gitDir = path.join(process.cwd(), '.git');
   if (!fs.existsSync(gitDir)) {
-    console.error('❌ Error: Not a git repository. Run "git init" first.');
+    console.error(' Error: Not a git repository. Run "git init" first.');
     process.exit(1);
   }
   const hooksDir = path.join(gitDir, 'hooks');
@@ -19,7 +19,7 @@ export const hookCommand = () => {
   if (fs.existsSync(postCommitPath)) {
     const existingContent = fs.readFileSync(postCommitPath, 'utf-8');
     if (existingContent.includes('record --commit')) {
-      console.log('ℹ️ Git post-commit hook already installed.');
+      console.log(' Git post-commit hook already installed.');
       return;
     }
     content = existingContent + hookCommandStr;
@@ -33,5 +33,5 @@ export const hookCommand = () => {
   } catch {
     // Ignore chmod error on Windows
   }
-  console.log('✅ Git post-commit hook installed successfully!');
+  console.log(' Git post-commit hook installed successfully!');
 };

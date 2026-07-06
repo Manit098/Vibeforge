@@ -22,35 +22,35 @@ WORKFLOW
 
 Read Context
 
-↓
+
 
 Read Docs
 
-↓
+
 
 Read Plans
 
-↓
+
 
 Inspect Memory
 
-↓
+
 
 Plan
 
-↓
+
 
 Implement
 
-↓
+
 
 Update Records
 
-↓
+
 
 Update Context
 
-↓
+
 
 Commit
 
@@ -112,5 +112,5 @@ Another AI should continue work instantly.
 `;
 
   fs.writeFileSync(agentPath, agentContent);
-  console.log('🤖 AGENT.md generated!');
+  console.log(' AGENT.md generated!');
 };

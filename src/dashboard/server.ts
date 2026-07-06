@@ -12,14 +12,12 @@ import { analyticsPage } from './pages/analytics';
 import { codegraphPage } from './pages/codegraph';
 import { healthPage } from './pages/health';
 import { checklistPage } from './pages/checklist';
-import { statsPage } from './pages/stats';
-import { promptEngineerPage } from './pages/prompt-engineer';
 import { runTestScan } from '../commands/test-scan';
-import { buildCustomPrompt } from '../commands/prompt-wizard';
 import { updateContext } from '../services/context';
 import { generateHandoff } from '../services/handoff';
 import { scanCodebase } from '../services/codegraph';
 import { CodegraphNode } from '../types';
+import { VIBEFORGE_VERSION } from '../version';
 
 interface TimelineItem {
   filename: string;
@@ -37,14 +35,31 @@ interface DocumentSummary {
   sizeBytes: number;
 }
 
-interface RecentActivity {
-  filename: string;
-  type: string;
-  createdAt: string;
-}
-
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
+
+const safeWorkspaceFile = (
+  vibeforgeDir: string,
+  category: string,
+  filename: string
+): string | undefined => {
+  const allowedCategories = new Set(['docs', 'memory', 'records', 'plans']);
+  if (!allowedCategories.has(category)) {
+    return undefined;
+  }
+
+  if (filename !== path.basename(filename)) {
+    return undefined;
+  }
+
+  const baseDir = path.resolve(vibeforgeDir, category);
+  const resolved = path.resolve(baseDir, filename);
+  if (resolved !== path.join(baseDir, filename)) {
+    return undefined;
+  }
+
+  return resolved;
+};
 
 export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) => {
   const app = express();
@@ -211,7 +226,8 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
 
   app.get('/api/docs/:category/:filename', (req, res) => {
     try {
-      const fp = path.join(vibeforgeDir, req.params.category, req.params.filename);
+      const fp = safeWorkspaceFile(vibeforgeDir, req.params.category, req.params.filename);
+      if (!fp) return res.status(400).json({ error: 'Invalid document path' });
       if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Not found' });
       res.json({ content: fs.readFileSync(fp, 'utf-8') });
     } catch (e) {
@@ -490,17 +506,6 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     }
   });
 
-  // ─── API: Prompt Engineer Generate ───
-  app.post('/api/prompt-engineer/generate', (req, res) => {
-    try {
-      const { objective, files, rules } = req.body;
-      const prompt = buildCustomPrompt(objective || '', files || [], rules || []);
-      res.json({ prompt });
-    } catch (e) {
-      res.status(500).json({ error: errorMessage(e) });
-    }
-  });
-
   // ─── API: Checklist ───
   app.get('/api/checklist', (_req, res) => {
     try {
@@ -583,129 +588,21 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     }
   });
 
-  // ─── API: Stats ───
-  app.get('/api/stats', async (req, res) => {
-    try {
-      const range = (req.query.range as string) || 'weekly';
-      const periodMs = range === 'weekly' ? 7 * 86400000 : 86400000;
-      const cutoff = Date.now() - periodMs;
-
-      // Commits
-      let commitsInPeriod = 0;
-      const commitsByDay: { label: string; count: number }[] = [];
-      try {
-        const git = simpleGit();
-        if (await git.checkIsRepo()) {
-          const sinceDate = new Date(cutoff).toISOString();
-          const log = await git.log({ '--since': sinceDate });
-          commitsInPeriod = log.total;
-          const dayMap: { [key: string]: number } = {};
-          log.all.forEach((c) => {
-            const day = new Date(c.date).toLocaleDateString('en-US', { weekday: 'short' });
-            dayMap[day] = (dayMap[day] || 0) + 1;
-          });
-          const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-          dayOrder.forEach((d) => {
-            if (dayMap[d] !== undefined) commitsByDay.push({ label: d, count: dayMap[d] });
-          });
-          if (commitsByDay.length === 0)
-            Object.entries(dayMap).forEach(([d, c]) => commitsByDay.push({ label: d, count: c }));
-        }
-      } catch {}
-
-      // Workspace files
-      const countRecent = (sub: string) => {
-        const dir = path.join(vibeforgeDir, sub);
-        if (!fs.existsSync(dir)) return 0;
-        return fs.readdirSync(dir).filter((f) => {
-          const st = fs.statSync(path.join(dir, f));
-          return st.mtime.getTime() > cutoff;
-        }).length;
-      };
-      const newRecords = countRecent('records');
-      const newMemory = countRecent('memory');
-
-      // Composition
-      const countAll = (sub: string) => {
-        const dir = path.join(vibeforgeDir, sub);
-        return fs.existsSync(dir) ? fs.readdirSync(dir).length : 0;
-      };
-      const composition: { [key: string]: number } = {
-        docs: countAll('docs'),
-        memory: countAll('memory'),
-        records: countAll('records'),
-        plans: countAll('plans'),
-        tags: countAll('tags'),
-      };
-
-      // Workspace size
-      let wsSize = 0;
-      const calcSize = (dir: string) => {
-        if (!fs.existsSync(dir)) return;
-        fs.readdirSync(dir, { withFileTypes: true }).forEach((item) => {
-          const fp = path.join(dir, item.name);
-          if (item.isDirectory()) calcSize(fp);
-          else wsSize += fs.statSync(fp).size;
-        });
-      };
-      calcSize(vibeforgeDir);
-
-      // Recent activity
-      const recentActivity: RecentActivity[] = [];
-      ['records', 'memory', 'plans'].forEach((sub) => {
-        const dir = path.join(vibeforgeDir, sub);
-        if (!fs.existsSync(dir)) return;
-        fs.readdirSync(dir, { withFileTypes: true }).forEach((d) => {
-          if (!d.isFile()) return;
-          const fp = path.join(dir, d.name);
-          const st = fs.statSync(fp);
-          if (st.mtime.getTime() > cutoff) {
-            const type = d.name.includes('commit')
-              ? 'commit'
-              : d.name.includes('prompt')
-                ? 'prompt'
-                : d.name.includes('decision')
-                  ? 'memory'
-                  : 'system';
-            recentActivity.push({ filename: d.name, type, createdAt: st.mtime.toISOString() });
-          }
-        });
-      });
-      recentActivity.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-      res.json({
-        commitsInPeriod,
-        commitsByDay,
-        newRecords,
-        newMemory,
-        composition,
-        workspaceSize: wsSize,
-        recentActivity,
-      });
-    } catch (e) {
-      res.status(500).json({ error: errorMessage(e) });
-    }
-  });
-
   // ─── Page routes ───
   app.get('/', (_req, res) => res.send(overviewPage()));
   app.get('/timeline', (_req, res) => res.send(timelinePage()));
   app.get('/context', (_req, res) => res.send(contextPage()));
   app.get('/documents', (_req, res) => res.send(documentsPage()));
-  app.get('/prompt-engineer', (_req, res) => res.send(promptEngineerPage()));
   app.get('/handoff', (_req, res) => res.send(handoffPage()));
   app.get('/analytics', (_req, res) => res.send(analyticsPage()));
   app.get('/codegraph', (_req, res) => res.send(codegraphPage()));
   app.get('/health', (_req, res) => res.send(healthPage()));
   app.get('/checklist', (_req, res) => res.send(checklistPage()));
-  app.get('/stats', (_req, res) => res.send(statsPage()));
 
   // ─── Start ───
   const server = app.listen(port, () => {
     console.log(`\n${'\u2550'.repeat(54)}`);
-    console.log(`\ud83d\ude80 VibeForge Dashboard v3.5`);
+    console.log(`\ud83d\ude80 VibeForge Dashboard v${VIBEFORGE_VERSION}`);
     console.log(`\ud83c\udf10 http://localhost:${port}`);
     console.log(`${'\u2550'.repeat(54)}\n`);
     console.log(`Pages:`);
@@ -713,11 +610,9 @@ export const startDashboardServer = (vibeforgeDir: string, port: number = 3000) 
     console.log(`  \ud83d\udd50 Timeline    \u2192 http://localhost:${port}/timeline`);
     console.log(`  \ud83d\udcda Context     \u2192 http://localhost:${port}/context`);
     console.log(`  \ud83d\udcc4 Documents   \u2192 http://localhost:${port}/documents`);
-    console.log(`  \ud83d\udcac Prompt Eng   \u2192 http://localhost:${port}/prompt-engineer`);
     console.log(`  \ud83d\udcc8 Analytics   \u2192 http://localhost:${port}/analytics`);
     console.log(`  \ud83c\udf33 Codegraph   \u2192 http://localhost:${port}/codegraph`);
     console.log(`  \ud83e\ude7a Health      \u2192 http://localhost:${port}/health`);
-    console.log(`  \ud83d\udcc9 Statistics  \u2192 http://localhost:${port}/stats`);
     console.log(`  \ud83d\udccb Checklist   \u2192 http://localhost:${port}/checklist`);
     console.log(`  \ud83c\udfaf Handoff     \u2192 http://localhost:${port}/handoff`);
     console.log(`\n\ud83d\udd14 Live reload: auto-refreshes every 15s`);

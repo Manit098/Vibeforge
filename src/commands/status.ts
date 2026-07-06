@@ -70,21 +70,21 @@ export const statusCommand = async () => {
     // Git not available
   }
 
-  console.log('\n📊 VibeForge Workspace Status\n');
-  console.log('┌──────────────────────┬────────────────────────────────────────────┐');
-  console.log('│ Property             │ Value                                      │');
-  console.log('├──────────────────────┼────────────────────────────────────────────┤');
-  console.log(`│ 🌿 Git Branch        │ ${branch.padEnd(42)} │`);
-  console.log(`│ 💬 Last Commit       │ ${lastCommit.padEnd(42)} │`);
-  console.log('├──────────────────────┼────────────────────────────────────────────┤');
-  console.log(`│ 📄 Documents         │ ${String(docsCount).padEnd(42)} │`);
-  console.log(`│ 🧠 Memory Entries    │ ${String(memoryCount).padEnd(42)} │`);
-  console.log(`│ 📋 Plans             │ ${String(plansCount).padEnd(42)} │`);
-  console.log(`│ 📁 Records           │ ${String(recordsCount).padEnd(42)} │`);
-  console.log('├──────────────────────┼────────────────────────────────────────────┤');
-  console.log(`│ 📏 Context Size      │ ${contextSize.padEnd(42)} │`);
-  console.log(`│ 🔢 Context Tokens    │ ${('~' + contextTokens).padEnd(42)} │`);
-  console.log(`│ 🎯 Last Handoff      │ ${handoffInfo.padEnd(42)} │`);
-  console.log(`│ 💾 Workspace Size    │ ${totalSizeStr.padEnd(42)} │`);
-  console.log('└──────────────────────┴────────────────────────────────────────────┘\n');
+  console.log('\n VibeForge Workspace Status\n');
+  console.log('');
+  console.log(' Property              Value                                      ');
+  console.log('');
+  console.log(`  Git Branch         ${branch.padEnd(42)} `);
+  console.log(`  Last Commit        ${lastCommit.padEnd(42)} `);
+  console.log('');
+  console.log(`  Documents          ${String(docsCount).padEnd(42)} `);
+  console.log(`  Memory Entries     ${String(memoryCount).padEnd(42)} `);
+  console.log(`  Plans              ${String(plansCount).padEnd(42)} `);
+  console.log(`  Records            ${String(recordsCount).padEnd(42)} `);
+  console.log('');
+  console.log(`  Context Size       ${contextSize.padEnd(42)} `);
+  console.log(`  Context Tokens     ${('~' + contextTokens).padEnd(42)} `);
+  console.log(`  Last Handoff       ${handoffInfo.padEnd(42)} `);
+  console.log(`  Workspace Size     ${totalSizeStr.padEnd(42)} `);
+  console.log('\n');
 };

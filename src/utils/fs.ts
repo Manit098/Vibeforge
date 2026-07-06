@@ -39,7 +39,7 @@ export const loadConfig = (cwd: string = process.cwd()): VibeForgeConfig => {
 export const ensureWorkspace = (): string => {
   const vibeforgeDir = path.join(process.cwd(), '.vibeforge');
   if (!fs.existsSync(vibeforgeDir)) {
-    console.error('❌ Error: VibeForge workspace not initialized. Run "vibeforge init" first.');
+    console.error(' Error: VibeForge workspace not initialized. Run "vibeforge init" first.');
     process.exit(1);
   }
   return vibeforgeDir;

@@ -30,12 +30,12 @@ export const cleanCommand = (options: CleanOptions) => {
   const vibeforgeDir = ensureWorkspace();
 
   if (isWorkspaceLocked(vibeforgeDir)) {
-    console.error('\n🔐 Workspace is LOCKED. Unlock first with: vibeforge unlock\n');
+    console.error('\n Workspace is LOCKED. Unlock first with: vibeforge unlock\n');
     process.exit(1);
   }
 
   if (!options.records && !options.memory && !options.all) {
-    console.log('\n🧹 VibeForge Clean\n');
+    console.log('\n VibeForge Clean\n');
     console.log('Usage:');
     console.log('  vibeforge clean --records    Remove all records');
     console.log('  vibeforge clean --memory     Remove all memory entries');
@@ -44,29 +44,29 @@ export const cleanCommand = (options: CleanOptions) => {
     return;
   }
 
-  console.log('\n🧹 Cleaning workspace...\n');
+  console.log('\n Cleaning workspace...\n');
   let totalCleaned = 0;
 
   if (options.records || options.all) {
     const count = cleanDir(path.join(vibeforgeDir, 'records'));
-    console.log(`  🗑️  Records: ${count} item(s) removed`);
+    console.log(`    Records: ${count} item(s) removed`);
     totalCleaned += count;
   }
 
   if (options.memory || options.all) {
     const count = cleanDir(path.join(vibeforgeDir, 'memory'));
-    console.log(`  🗑️  Memory: ${count} item(s) removed`);
+    console.log(`    Memory: ${count} item(s) removed`);
     totalCleaned += count;
   }
 
   if (options.all) {
     const count = cleanDir(path.join(vibeforgeDir, 'plans'));
-    console.log(`  🗑️  Plans: ${count} item(s) removed`);
+    console.log(`    Plans: ${count} item(s) removed`);
     totalCleaned += count;
   }
 
   // Regenerate context
   updateContext(vibeforgeDir);
 
-  console.log(`\n✅ Cleaned ${totalCleaned} total item(s). Context regenerated.\n`);
+  console.log(`\n Cleaned ${totalCleaned} total item(s). Context regenerated.\n`);
 };

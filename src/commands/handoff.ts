@@ -6,7 +6,7 @@ export const handoffCommand = async () => {
     const vibeforgeDir = ensureWorkspace();
     const result = await generateHandoff(vibeforgeDir, { silent: true });
 
-    console.log('\n🎯 Handoff generated\n');
+    console.log('\n Handoff generated\n');
     console.log(`  File: ${result.handoffPath}`);
     console.log(`  Branch: ${result.branchName}`);
     console.log(
@@ -16,7 +16,7 @@ export const handoffCommand = async () => {
     console.log('');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`❌ Failed to generate handoff: ${message}`);
+    console.error(` Failed to generate handoff: ${message}`);
     process.exit(1);
   }
 };

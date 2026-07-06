@@ -19,7 +19,7 @@ const readDirRecursive = (dir: string): { [key: string]: string } => {
       try {
         result[item.name] = fs.readFileSync(fullPath, 'utf-8');
       } catch {
-        result[item.name] = '[Binary file — skipped]';
+        result[item.name] = '[Binary file  skipped]';
       }
     }
   }
@@ -40,7 +40,7 @@ export const exportCommand = (options: ExportOptions) => {
     format === 'json' ? `vibeforge-export-${timestamp}.json` : `vibeforge-export-${timestamp}.md`;
   const outputPath = path.resolve(options.output || defaultFilename);
 
-  console.log(`\n📦 Exporting workspace as ${format.toUpperCase()}...\n`);
+  console.log(`\n Exporting workspace as ${format.toUpperCase()}...\n`);
 
   const docs = readDirRecursive(path.join(vibeforgeDir, 'docs'));
   const memory = readDirRecursive(path.join(vibeforgeDir, 'memory'));
@@ -102,6 +102,6 @@ export const exportCommand = (options: ExportOptions) => {
 
   const stats = fs.statSync(outputPath);
   const sizeKB = (stats.size / 1024).toFixed(2);
-  console.log(`✅ Exported to: ${outputPath}`);
-  console.log(`📏 File size: ${sizeKB} KB\n`);
+  console.log(` Exported to: ${outputPath}`);
+  console.log(` File size: ${sizeKB} KB\n`);
 };

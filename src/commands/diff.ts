@@ -9,16 +9,16 @@ export const diffCommand = async () => {
   const contextPath = path.join(vibeforgeDir, 'context.md');
 
   if (!fs.existsSync(contextPath)) {
-    console.error('❌ No context.md found. Run "vibeforge context" first.');
+    console.error(' No context.md found. Run "vibeforge context" first.');
     process.exit(1);
   }
 
   const contextStats = fs.statSync(contextPath);
   const lastContextDate = contextStats.mtime;
 
-  console.log('\n📊 VibeForge Diff Report\n');
+  console.log('\n VibeForge Diff Report\n');
   console.log(`Last context generated: ${lastContextDate.toLocaleString()}`);
-  console.log('─'.repeat(50));
+  console.log('-'.repeat(50));
 
   try {
     const git = simpleGit();
@@ -29,26 +29,26 @@ export const diffCommand = async () => {
       const log = await git.log({ '--since': sinceDate });
 
       if (log.total > 0) {
-        console.log(`\n🔴 Context is STALE — ${log.total} commit(s) since last generation:\n`);
+        console.log(`\n Context is STALE  ${log.total} commit(s) since last generation:\n`);
         log.all.forEach((c) => {
-          console.log(`  ${c.hash.substring(0, 8)} │ ${c.message} (${c.author_name})`);
+          console.log(`  ${c.hash.substring(0, 8)}  ${c.message} (${c.author_name})`);
         });
       } else {
-        console.log('\n🟢 Context is UP TO DATE — no new commits since last generation.');
+        console.log('\n Context is UP TO DATE  no new commits since last generation.');
       }
 
       const status = await git.status();
       const dirty = [...status.modified, ...status.created, ...status.deleted, ...status.not_added];
       if (dirty.length > 0) {
-        console.log(`\n⚠️  ${dirty.length} uncommitted change(s):`);
-        dirty.forEach((f) => console.log(`  • ${f}`));
+        console.log(`\n  ${dirty.length} uncommitted change(s):`);
+        dirty.forEach((f) => console.log(`   ${f}`));
       }
     } else {
-      console.log('\nℹ️  Not a git repository — skipping commit analysis.');
+      console.log('\n  Not a git repository  skipping commit analysis.');
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.log(`\nℹ️  Git analysis skipped: ${message}`);
+    console.log(`\n  Git analysis skipped: ${message}`);
   }
 
   // Check workspace changes
@@ -69,12 +69,12 @@ export const diffCommand = async () => {
   });
 
   if (newerFiles > 0) {
-    console.log(`\n📁 ${newerFiles} workspace file(s) modified after last context generation.`);
+    console.log(`\n ${newerFiles} workspace file(s) modified after last context generation.`);
     console.log('   Run "vibeforge context" to rebuild.');
   }
 
   const content = fs.readFileSync(contextPath, 'utf-8');
   const tokens = estimateTokens(content);
-  console.log(`\n📏 Current context: ${content.length} chars / ~${tokens} tokens`);
+  console.log(`\n Current context: ${content.length} chars / ~${tokens} tokens`);
   console.log('');
 };

@@ -1,12 +1,20 @@
 {
   "name": "@manit098/vibeforge",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Your codebase, always in context. Project memory and context CLI.",
   "main": "dist/index.js",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "COMMANDS.md",
+    "CHANGELOG.md",
+    "docs",
+    "LICENSE"
+  ],
   "bin": {
     "vibeforge": "./dist/index.js"
   },
@@ -21,7 +29,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepublishOnly": "npm run clean && npm run build"
+    "typecheck": "tsc --noEmit",
+    "release:check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "prepublishOnly": "npm run clean && npm run release:check"
   },
   "repository": {
     "type": "git",
@@ -37,7 +47,7 @@
     "project-management"
   ],
   "author": "manit098",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Manit098/Vibeforge/issues"

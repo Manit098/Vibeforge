@@ -204,7 +204,7 @@ ${config.ignore && config.ignore.length > 0 ? `**Ignored Paths:** ${config.ignor
   fs.writeFileSync(contextPath, contextContent);
 
   if (!options.silent) {
-    console.log(`✅ Context updated: ${contextPath}`);
+    console.log(` Context updated: ${contextPath}`);
     console.log(
       `   Docs: ${stats.docs} | Memory: ${stats.memory} | Records: ${stats.records} | Plans: ${stats.plans} | Tokens: ~${stats.estimatedTokens}`
     );

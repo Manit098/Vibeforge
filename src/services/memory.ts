@@ -172,6 +172,21 @@ export const writeMemories = (vibeforgeDir: string, memories: MemoryItem[]): voi
   writeJsonSafe(getMemoryPath(vibeforgeDir), memories);
 };
 
+export const renderMemoryMarkdown = (memory: MemoryItem): string => {
+  const tags = memory.tags.length > 0 ? memory.tags.join(', ') : 'none';
+  const files = memory.files.length > 0 ? memory.files.join(', ') : 'none';
+
+  return `# ${memory.type.charAt(0).toUpperCase() + memory.type.slice(1)} Memory ${memory.id}
+
+**Created:** ${memory.createdAt}
+**Updated:** ${memory.updatedAt}
+**Tags:** ${tags}
+**Files:** ${files}
+
+${memory.content}
+`;
+};
+
 export const readLinks = (vibeforgeDir: string): LinkRecord[] =>
   readJsonSafe<LinkRecord[]>(getLinksPath(vibeforgeDir), []);
 

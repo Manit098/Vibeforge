@@ -191,7 +191,7 @@ Once you have read these files, state your current understanding of the active t
   fs.writeFileSync(handoffPath, handoffContent);
 
   if (!options.silent) {
-    console.log(`✅ Handoff generated: ${handoffPath}`);
+    console.log(` Handoff generated: ${handoffPath}`);
     console.log(
       `   Branch: ${branchName} | Plans: ${plansInfo.count} | Memory: ${memoriesInfo.count}`
     );

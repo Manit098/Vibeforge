@@ -108,7 +108,7 @@ export const askCommand = async (question?: string) => {
     await executeAsk(question);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`❌ Failed to get AI response: ${message}`);
+    console.error(` Failed to get AI response: ${message}`);
     process.exit(1);
   }
 };

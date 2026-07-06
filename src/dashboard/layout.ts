@@ -1,4 +1,5 @@
 import { getStyles } from './styles';
+import { VIBEFORGE_VERSION } from '../version';
 
 // Wraps page-specific body content in the full HTML shell with sidebar navigation
 export const renderLayout = (
@@ -12,11 +13,9 @@ export const renderLayout = (
     { id: 'timeline', icon: '🕐', label: 'Timeline', href: '/timeline' },
     { id: 'context', icon: '📚', label: 'Context', href: '/context' },
     { id: 'documents', icon: '📄', label: 'Documents', href: '/documents' },
-    { id: 'prompt-engineer', icon: '💬', label: 'Prompt Engineer', href: '/prompt-engineer' },
     { id: 'analytics', icon: '📈', label: 'Analytics', href: '/analytics' },
     { id: 'codegraph', icon: '🌳', label: 'Codegraph', href: '/codegraph' },
     { id: 'health', icon: '🩺', label: 'Health', href: '/health' },
-    { id: 'stats', icon: '📉', label: 'Statistics', href: '/stats' },
     { id: 'checklist', icon: '📋', label: 'Checklist', href: '/checklist' },
     { id: 'handoff', icon: '🎯', label: 'Handoff', href: '/handoff' },
   ];
@@ -98,13 +97,13 @@ export const renderLayout = (
       <div class="sidebar-header">
         <div class="logo-icon">V</div>
         <span class="logo-text">VibeForge</span>
-        <span class="logo-ver">v3</span>
+        <span class="logo-ver">v${VIBEFORGE_VERSION}</span>
       </div>
       <nav class="nav">
         ${navHtml}
       </nav>
       <div style="padding: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-dim);">
-        Enterprise Project Memory CLI
+        Project memory that stays close to your code.
       </div>
     </aside>
 

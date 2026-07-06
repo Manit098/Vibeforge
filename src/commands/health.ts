@@ -12,8 +12,8 @@ const RED = '\x1b[31m';
 
 const scoreBar = (score: number, max: number = 100): string => {
   const pct = Math.round((score / max) * 20);
-  const filled = '█'.repeat(pct);
-  const empty = '░'.repeat(20 - pct);
+  const filled = '#'.repeat(pct);
+  const empty = '-'.repeat(20 - pct);
   const color = score >= 80 ? GREEN : score >= 50 ? YELLOW : RED;
   return `${color}${filled}${empty}${RESET} ${score}/${max}`;
 };
@@ -30,7 +30,7 @@ export const healthCommand = async () => {
     : 0;
   const docsScore = Math.min(15, docsCount * 5);
   scores.push({
-    name: '📄 Documentation',
+    name: ' Documentation',
     score: docsScore,
     max: 15,
     detail: `${docsCount} doc(s) found`,
@@ -41,7 +41,7 @@ export const healthCommand = async () => {
   const memCount = fs.existsSync(memDir) ? fs.readdirSync(memDir).length : 0;
   const memScore = Math.min(15, memCount * 3);
   scores.push({
-    name: '🧠 Memory Entries',
+    name: ' Memory Entries',
     score: memScore,
     max: 15,
     detail: `${memCount} entries`,
@@ -51,7 +51,7 @@ export const healthCommand = async () => {
   const recDir = path.join(vibeforgeDir, 'records');
   const recCount = fs.existsSync(recDir) ? fs.readdirSync(recDir).length : 0;
   const recScore = Math.min(15, recCount * 3);
-  scores.push({ name: '📁 Records', score: recScore, max: 15, detail: `${recCount} records` });
+  scores.push({ name: ' Records', score: recScore, max: 15, detail: `${recCount} records` });
 
   // 4. Context freshness (0-15)
   const ctxPath = path.join(vibeforgeDir, 'context.md');
@@ -71,10 +71,10 @@ export const healthCommand = async () => {
       ctxDetail = `${ageHours.toFixed(1)}h old`;
     } else {
       ctxScore = 4;
-      ctxDetail = `${Math.floor(ageHours / 24)}d old — STALE`;
+      ctxDetail = `${Math.floor(ageHours / 24)}d old - STALE`;
     }
   }
-  scores.push({ name: '📚 Context Freshness', score: ctxScore, max: 15, detail: ctxDetail });
+  scores.push({ name: ' Context Freshness', score: ctxScore, max: 15, detail: ctxDetail });
 
   // 5. Git hygiene (0-15)
   let gitScore = 0;
@@ -92,11 +92,11 @@ export const healthCommand = async () => {
         gitDetail = `${dirty} uncommitted changes`;
       } else {
         gitScore = 5;
-        gitDetail = `${dirty} uncommitted changes — messy`;
+        gitDetail = `${dirty} uncommitted changes - messy`;
       }
     }
   } catch {}
-  scores.push({ name: '🌿 Git Hygiene', score: gitScore, max: 15, detail: gitDetail });
+  scores.push({ name: ' Git Hygiene', score: gitScore, max: 15, detail: gitDetail });
 
   // 6. Handoff exists (0-10)
   const handoffPath = path.join(vibeforgeDir, 'handoff.md');
@@ -108,7 +108,7 @@ export const healthCommand = async () => {
     hoScore = ageHours < 6 ? 10 : ageHours < 24 ? 7 : 3;
     hoDetail = ageHours < 1 ? 'Fresh' : `${ageHours.toFixed(1)}h old`;
   }
-  scores.push({ name: '🎯 Handoff State', score: hoScore, max: 10, detail: hoDetail });
+  scores.push({ name: ' Handoff State', score: hoScore, max: 10, detail: hoDetail });
 
   // 7. Checklist (0-5)
   const clPath = path.join(vibeforgeDir, 'checklist.md');
@@ -118,13 +118,13 @@ export const healthCommand = async () => {
     clScore = 5;
     clDetail = 'Active checklist';
   }
-  scores.push({ name: '📋 Checklist', score: clScore, max: 5, detail: clDetail });
+  scores.push({ name: ' Checklist', score: clScore, max: 5, detail: clDetail });
 
   // 8. Test Coverage (0-10)
   const testScanRes = runTestScan(process.cwd());
   const testScore = Math.round((testScanRes.coverageRatio / 100) * 10);
   scores.push({
-    name: '🧪 Test Coverage',
+    name: ' Test Coverage',
     score: testScore,
     max: 10,
     detail: `${testScanRes.coverageRatio}% coverage (${testScanRes.testedCount}/${testScanRes.totalSourceFiles})`,
@@ -134,45 +134,45 @@ export const healthCommand = async () => {
 
   const grade =
     totalScore >= 90
-      ? '🏆 A+'
+      ? ' A+'
       : totalScore >= 80
-        ? '🥇 A'
+        ? ' A'
         : totalScore >= 70
-          ? '🥈 B'
+          ? ' B'
           : totalScore >= 60
-            ? '🥉 C'
+            ? ' C'
             : totalScore >= 40
-              ? '⚠️ D'
-              : '❌ F';
+              ? ' D'
+              : ' F';
 
-  console.log(`\n${BOLD}🩺 VibeForge Project Health Report${RESET}\n`);
+  console.log(`\n${BOLD} VibeForge Project Health Report${RESET}\n`);
   console.log(`${BOLD}Overall Score: ${totalScore}/100  ${grade}${RESET}`);
   console.log(`${scoreBar(totalScore)}\n`);
-  console.log('─'.repeat(60));
+  console.log('-'.repeat(60));
 
   scores.forEach((s) => {
     console.log(`  ${s.name.padEnd(25)} ${scoreBar(s.score, s.max)}  ${s.detail}`);
   });
 
-  console.log('─'.repeat(60));
+  console.log('-'.repeat(60));
 
   // Recommendations
   const recs: string[] = [];
-  if (docsScore < 10) recs.push('📄 Add more documentation with: vibeforge add --docs <file>');
+  if (docsScore < 10) recs.push(' Add more documentation with: vibeforge add --docs <file>');
   if (memCount === 0)
-    recs.push('🧠 Record decisions with: vibeforge decision "<text>" --reason "<why>"');
-  if (ctxScore < 12) recs.push('📚 Rebuild context with: vibeforge context');
-  if (gitScore < 10) recs.push('🌿 Commit your changes to improve git hygiene');
-  if (hoScore < 7) recs.push('🎯 Generate a fresh handoff with: vibeforge handoff');
-  if (clScore === 0) recs.push('📋 Start a checklist with: vibeforge checklist "Next task"');
+    recs.push(' Record decisions with: vibeforge decision "<text>" --reason "<why>"');
+  if (ctxScore < 12) recs.push(' Rebuild context with: vibeforge context');
+  if (gitScore < 10) recs.push(' Commit your changes to improve git hygiene');
+  if (hoScore < 7) recs.push(' Generate a fresh handoff with: vibeforge handoff');
+  if (clScore === 0) recs.push(' Start a checklist with: vibeforge checklist "Next task"');
   if (testScore < 8)
-    recs.push('🧪 Add unit tests for untested files: run "vibeforge test-scan" to see candidates');
+    recs.push(' Add unit tests for untested files: run "vibeforge test-scan" to see candidates');
 
   if (recs.length > 0) {
-    console.log(`\n${BOLD}💡 Recommendations:${RESET}`);
+    console.log(`\n${BOLD} Recommendations:${RESET}`);
     recs.forEach((r) => console.log(`  ${r}`));
   } else {
-    console.log(`\n${GREEN}${BOLD}✨ Perfect health! Your project is well-maintained.${RESET}`);
+    console.log(`\n${GREEN}${BOLD} Perfect health! Your project is well-maintained.${RESET}`);
   }
   console.log('');
 };

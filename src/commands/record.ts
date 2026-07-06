@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import chokidar from 'chokidar';
 import { ensureWorkspace } from '../utils/fs';
 import { generateRecord, recordLatestCommit } from '../services/records';
@@ -8,6 +9,7 @@ import {
   isMemoryType,
   normalizeFilePath,
   readMemories,
+  renderMemoryMarkdown,
   writeMemories,
   MemoryItem,
 } from '../services/memory';
@@ -64,6 +66,10 @@ export const recordCommand = async (
     };
 
     writeMemories(vibeforgeDir, [...memories, memory]);
+    const memoryDir = path.join(vibeforgeDir, 'memory');
+    fs.mkdirSync(memoryDir, { recursive: true });
+    fs.writeFileSync(path.join(memoryDir, `${memory.id}.md`), renderMemoryMarkdown(memory));
+
     console.log(`Recorded ${memory.type} memory ${memory.id}`);
     if (memory.tags.length > 0) {
       console.log(`Tags: ${memory.tags.join(', ')}`);
@@ -78,13 +84,13 @@ export const recordCommand = async (
     try {
       const result = await recordLatestCommit(vibeforgeDir);
       if (result.status === 'recorded') {
-        console.log(`✅ ${result.message}`);
+        console.log(` ${result.message}`);
       } else {
-        console.log(`ℹ️ ${result.message}`);
+        console.log(` ${result.message}`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`❌ ${message}`);
+      console.error(` ${message}`);
       process.exit(1);
     }
     return;
@@ -105,7 +111,7 @@ export const recordCommand = async (
   if (commandOptions.watch) {
     const targetPath =
       commandOptions.watch === '.' ? process.cwd() : path.resolve(commandOptions.watch);
-    console.log(`👀 Watching for changes in: ${targetPath}`);
+    console.log(` Watching for changes in: ${targetPath}`);
 
     const watcher = chokidar.watch(targetPath, {
       ignored: /(node_modules|\.git|\.vibeforge)/,
@@ -117,7 +123,7 @@ export const recordCommand = async (
     const handleChange = () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        console.log('\n🔄 Change detected! Generating new record...');
+        console.log('\n Change detected! Generating new record...');
         generateRecord(targetPath, vibeforgeDir);
       }, 1000);
     };
@@ -130,12 +136,12 @@ export const recordCommand = async (
       .on('unlinkDir', handleChange);
 
     process.on('SIGINT', () => {
-      console.log('\n👋 Stopping watcher...');
+      console.log('\n Stopping watcher...');
       watcher.close();
       process.exit(0);
     });
   } else {
-    console.error('❌ Error: Use either --commit, --generate, --update, or --watch option');
+    console.error(' Error: Use either --commit, --generate, --update, or --watch option');
     process.exit(1);
   }
 };
