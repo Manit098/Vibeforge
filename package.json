@@ -1,0 +1,83 @@
+{
+  "name": "@manit098/vibeforge",
+  "version": "1.0.0",
+  "description": "Your codebase, always in context. Project memory and context CLI.",
+  "main": "dist/index.js",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "COMMANDS.md",
+    "CHANGELOG.md",
+    "docs",
+    "LICENSE"
+  ],
+  "bin": {
+    "vibeforge": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit",
+    "release:check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "prepublishOnly": "npm run clean && npm run release:check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Manit098/Vibeforge.git"
+  },
+  "keywords": [
+    "ai",
+    "codebase",
+    "context",
+    "memory",
+    "cli",
+    "knowledge-graph",
+    "project-management"
+  ],
+  "author": "manit098",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Manit098/Vibeforge/issues"
+  },
+  "homepage": "https://github.com/Manit098/Vibeforge#readme",
+  "devDependencies": {
+    "@types/chokidar": "^1.7.5",
+    "@types/express": "^4.17.25",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^25.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "jest": "^29.7.0",
+    "jest-util": "^29.7.0",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.1.3",
+    "ts-jest": "^29.3.1",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.3",
+    "express": "^4.22.2",
+    "simple-git": "^3.36.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

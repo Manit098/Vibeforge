@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vibeforge/
+test/
+PRD.md
+AGENT.md
+RULES.txt
+TECH_DOC.md
+PROGRESS.md
+TODO.md
+COMMAND.md
+added_features/
